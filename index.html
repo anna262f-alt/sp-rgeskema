@@ -50,19 +50,14 @@
       width: 80px;
       height: 80px;
       margin: 0 auto 20px;
-
       background: #4285f4;
       color: white;
-
       border-radius: 20px;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
       font-size: 52px;
       font-weight: bold;
-
       box-shadow: 0 5px 15px rgba(66,133,244,0.35);
     }
 
@@ -89,13 +84,10 @@
     textarea {
       width: 100%;
       padding: 14px;
-
       border: 1px solid #ccc;
       border-radius: 8px;
-
       font-size: 16px;
       font-family: inherit;
-
       outline: none;
       transition: border 0.2s, box-shadow 0.2s;
     }
@@ -113,21 +105,15 @@
 
     button {
       width: 100%;
-
       margin-top: 25px;
       padding: 15px;
-
       border: none;
       border-radius: 8px;
-
       background: #4285f4;
       color: white;
-
       font-size: 17px;
       font-weight: bold;
-
       cursor: pointer;
-
       transition: background 0.2s;
     }
 
@@ -148,7 +134,6 @@
       margin-top: 20px;
       padding: 12px;
       border-radius: 8px;
-
       text-align: center;
       font-weight: bold;
     }
@@ -163,7 +148,6 @@
       background: #fce8e6;
     }
 
-    /* Skjult iframe som modtager svaret fra Apps Script */
     #svarFrame {
       display: none;
       width: 0;
@@ -192,6 +176,7 @@
       h1 {
         font-size: 25px;
       }
+
     }
 
   </style>
@@ -275,14 +260,16 @@
     const button = document.getElementById("sendKnap");
     const besked = document.getElementById("besked");
 
+    let sender = false;
+
+
     /*
-     * Når formularen sendes:
-     * - den går til Apps Script
-     * - Apps Script gemmer svaret i Google Sheet
-     * - Apps Script sender derefter en postMessage tilbage
+     * Formularen sendes til Google Apps Script.
      */
 
     form.addEventListener("submit", function() {
+
+      sender = true;
 
       button.disabled = true;
       button.textContent = "Sender...";
@@ -294,33 +281,22 @@
 
 
     /*
-     * Modtag svar fra Apps Script
+     * Google Apps Script svarer inde i den skjulte iframe.
+     *
+     * Når iframe'en er færdig med at indlæse svaret,
+     * betragter vi afsendelsen som gennemført.
      */
 
-    window.addEventListener("message", function(event) {
+    document
+      .getElementById("svarFrame")
+      .addEventListener("load", function() {
 
-      /*
-       * Vi accepterer kun beskeder fra Google Apps Script.
-       */
-
-      if (
-        !event.origin.includes("googleusercontent.com") &&
-        !event.origin.includes("script.google.com")
-      ) {
-        return;
-      }
-
-      const data = event.data;
-
-      if (!data || typeof data !== "object") {
-        return;
-      }
-
-
-      if (data.success === true) {
+        if (!sender) {
+          return;
+        }
 
         besked.textContent =
-          "Tak! Dit svar er blevet gemt.";
+          "Tak! Dit svar er blevet sendt.";
 
         besked.className = "success";
 
@@ -329,23 +305,9 @@
         button.disabled = false;
         button.textContent = "Send svar";
 
-      }
+        sender = false;
 
-
-      else if (data.success === false) {
-
-        besked.textContent =
-          "Der opstod en fejl: " +
-          (data.error || "Ukendt fejl.");
-
-        besked.className = "error";
-
-        button.disabled = false;
-        button.textContent = "Send svar";
-
-      }
-
-    });
+      });
 
   </script>
 
