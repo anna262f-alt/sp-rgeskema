@@ -1,90 +1,136 @@
-```javascript
-const API_URL =
-  "https://script.google.com/macros/s/AKfycby9SV2I_rq9dmZFLhIWc8ptbDTluWWORrT_h2IDlm6N1OAkXKierngWGuLXNWyayEva/exec";
+/*
+ * SPØRGESKEMA
+ */
 
 
 const form =
   document.getElementById("formular");
 
+
 const button =
   document.getElementById("sendKnap");
+
 
 const besked =
   document.getElementById("besked");
 
 
-form.addEventListener("submit", async function(event) {
+const iframe =
+  document.getElementById("googleSheetFrame");
 
-  event.preventDefault();
-
-  button.disabled = true;
-  button.textContent = "Sender...";
-
-  besked.textContent = "";
-  besked.className = "";
-
-
-  const data = {
-    navn: form.navn.value.trim(),
-    alder: form.alder.value,
-    fritid: form.fritid.value.trim()
-  };
-
-
-  try {
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-
-      body: JSON.stringify(data)
-    });
-
-
-    const result = await response.json();
-
-
-    if (!result.success) {
-      throw new Error(
-        result.error || "Der opstod en fejl."
-      );
-    }
-
-
-    besked.textContent =
-      "Tak! Dit svar er blevet gemt.";
-
-    besked.className = "success";
-
-    form.reset();
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    besked.textContent =
-      "Der opstod en fejl. Prøv igen.";
-
-    besked.className = "error";
-
-  }
-
-
-  button.disabled = false;
-  button.textContent = "Send svar";
-
-});
 
 
 /*
- * PWA INSTALLATION
+ * Når formularen sendes
  */
 
+form.addEventListener(
+  "submit",
+  function(event) {
+
+    event.preventDefault();
+
+
+    /*
+     * Kontroller at felterne er udfyldt
+     */
+
+    if (!form.checkValidity()) {
+
+      form.reportValidity();
+
+      return;
+    }
+
+
+    /*
+     * Deaktiver knappen
+     */
+
+    button.disabled = true;
+
+    button.textContent =
+      "Sender...";
+
+
+    besked.textContent = "";
+
+    besked.className = "";
+
+
+    /*
+     * Send formularen til
+     * Google Apps Script.
+     *
+     * target="googleSheetFrame"
+     * betyder at siden ikke forlader
+     * GitHub/PWA'en.
+     */
+
+    form.submit();
+
+
+    /*
+     * Google Apps Script behandler
+     * herefter dataene.
+     *
+     * Vi viser beskeden efter kort tid.
+     */
+
+    setTimeout(
+      function() {
+
+        besked.textContent =
+          "Tak! Dit svar er blevet gemt.";
+
+        besked.className =
+          "success";
+
+
+        /*
+         * Ryd formularen
+         */
+
+        form.reset();
+
+
+        /*
+         * Aktivér knappen igen
+         */
+
+        button.disabled = false;
+
+        button.textContent =
+          "Send svar";
+
+      },
+      1200
+    );
+
+  }
+);
+
+
+
+/*
+ * =================================
+ * PWA INSTALLATION
+ * =================================
+ */
+
+
 let deferredPrompt = null;
+
 
 const installButton =
   document.getElementById("installKnap");
 
+
+
+/*
+ * Browseren fortæller os,
+ * når appen kan installeres.
+ */
 
 window.addEventListener(
   "beforeinstallprompt",
@@ -94,60 +140,108 @@ window.addEventListener(
 
     deferredPrompt = event;
 
-    installButton.style.display = "block";
+
+    /*
+     * Vis installationsknappen
+     */
+
+    installButton.style.display =
+      "block";
 
   }
 );
 
+
+
+/*
+ * Brugeren trykker
+ * "Installér app"
+ */
 
 installButton.addEventListener(
   "click",
   async function() {
 
     if (!deferredPrompt) {
+
       return;
+
     }
+
 
     deferredPrompt.prompt();
 
+
     await deferredPrompt.userChoice;
+
 
     deferredPrompt = null;
 
-    installButton.style.display = "none";
+
+    installButton.style.display =
+      "none";
 
   }
 );
 
 
+
 /*
- * SERVICE WORKER
+ * Appen er installeret
  */
+
+window.addEventListener(
+  "appinstalled",
+  function() {
+
+    installButton.style.display =
+      "none";
+
+  }
+);
+
+
+
+/*
+ * =================================
+ * SERVICE WORKER
+ * =================================
+ */
+
 
 if ("serviceWorker" in navigator) {
 
-  window.addEventListener("load", function() {
+  window.addEventListener(
+    "load",
+    function() {
 
-    navigator.serviceWorker
-      .register("service-worker.js")
-      .then(function() {
+      navigator.serviceWorker
+        .register(
+          "service-worker.js"
+        )
 
-        console.log(
-          "Service worker registreret."
+        .then(
+          function() {
+
+            console.log(
+              "Service Worker registreret."
+            );
+
+          }
+        )
+
+        .catch(
+          function(error) {
+
+            console.error(
+              "Service Worker fejl:",
+              error
+            );
+
+          }
         );
 
-      })
-      .catch(function(error) {
-
-        console.error(
-          "Service worker fejl:",
-          error
-        );
-
-      });
-
-  });
+    }
+  );
 
 }
-```
-
