@@ -1,316 +1,354 @@
-```html
 <!DOCTYPE html>
 <html lang="da">
-
 <head>
   <meta charset="UTF-8">
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
 
   <meta name="theme-color" content="#4285f4">
 
-  <title>Spørgeskema</title>
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Forslag"
+  >
+
+  <title>Forslag</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="icons/icon-192.png"
+  >
 
   <style>
-
     * {
       box-sizing: border-box;
     }
 
-    html,
     body {
       margin: 0;
       padding: 0;
-      min-height: 100%;
-    }
-
-    body {
       font-family: Arial, Helvetica, sans-serif;
       background: #f4f6f8;
       color: #222;
-      padding:
-        env(safe-area-inset-top)
-        20px
-        env(safe-area-inset-bottom)
-        20px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 600px;
-      margin: 40px auto;
+    .side {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .kort {
       background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
     }
 
-    .ikon {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      background: #4285f4;
-      color: white;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 52px;
-      font-weight: bold;
-      box-shadow: 0 5px 15px rgba(66,133,244,0.35);
+    .topbillede {
+      width: 100%;
+      height: auto;
+      max-height: 350px;
+      object-fit: cover;
+      border-radius: 15px;
+      display: block;
+      margin-bottom: 22px;
     }
 
     h1 {
-      margin: 0 0 10px;
+      margin-top: 0;
+      margin-bottom: 12px;
       text-align: center;
-      font-size: 28px;
+      font-size: 30px;
+      color: #333;
     }
 
-    .intro {
+    .beskrivelse {
       text-align: center;
-      color: #666;
-      margin-bottom: 30px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      color: #555;
+      font-size: 17px;
     }
 
     label {
       display: block;
-      margin-top: 20px;
-      margin-bottom: 7px;
       font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 20px;
     }
 
     input,
     textarea {
       width: 100%;
       padding: 14px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
       font-size: 16px;
-      font-family: inherit;
+      font-family: Arial, Helvetica, sans-serif;
       outline: none;
-      transition: border 0.2s, box-shadow 0.2s;
+      background: white;
     }
 
     input:focus,
     textarea:focus {
       border-color: #4285f4;
-      box-shadow: 0 0 0 3px rgba(66,133,244,0.15);
     }
 
     textarea {
+      min-height: 110px;
       resize: vertical;
-      min-height: 130px;
+    }
+
+    .forslag {
+      margin-top: 20px;
+      padding: 18px;
+      background: #f7f9fb;
+      border-radius: 14px;
+      border: 1px solid #e1e5e9;
+    }
+
+    .forslag-titel {
+      font-weight: bold;
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .fjern-knap {
+      margin-top: 8px;
+      background: transparent;
+      border: none;
+      color: #d32f2f;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 5px 0;
+    }
+
+    .fjern-knap:hover {
+      text-decoration: underline;
     }
 
     button {
       width: 100%;
-      margin-top: 25px;
-      padding: 15px;
       border: none;
-      border-radius: 8px;
-      background: #4285f4;
-      color: white;
+      border-radius: 10px;
+      padding: 15px;
       font-size: 17px;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s;
+      margin-top: 15px;
     }
 
-    button:hover {
+    #tilfoejKnap {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+
+    #tilfoejKnap:hover {
+      background: #d8e6fd;
+    }
+
+    #sendKnap {
+      background: #4285f4;
+      color: white;
+      margin-top: 25px;
+    }
+
+    #sendKnap:hover {
       background: #3367d6;
     }
 
-    button:active {
-      transform: scale(0.99);
+    #sendKnap:disabled {
+      background: #aaa;
+      cursor: not-allowed;
     }
 
-    button:disabled {
-      background: #999;
-      cursor: not-allowed;
+    #installKnap {
+      display: none;
+      background: #34a853;
+      color: white;
     }
 
     #besked {
       margin-top: 20px;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 15px;
+      border-radius: 10px;
       text-align: center;
       font-weight: bold;
-    }
-
-    .success {
-      color: #188038;
-      background: #e6f4ea;
-    }
-
-    .error {
-      color: #d93025;
-      background: #fce8e6;
-    }
-
-    #svarFrame {
       display: none;
-      width: 0;
-      height: 0;
-      border: 0;
+    }
+
+    #besked.success {
+      display: block;
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    #besked.error {
+      display: block;
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .ikon {
+      width: 55px;
+      height: 55px;
+      margin: 0 auto 10px auto;
+      display: block;
     }
 
     @media (max-width: 600px) {
-
-      body {
+      .side {
         padding: 10px;
       }
 
-      .container {
-        margin: 15px auto;
-        padding: 24px 20px;
-        border-radius: 14px;
-      }
-
-      .ikon {
-        width: 70px;
-        height: 70px;
-        font-size: 45px;
+      .kort {
+        padding: 18px;
+        border-radius: 15px;
       }
 
       h1 {
         font-size: 25px;
       }
 
+      .beskrivelse {
+        font-size: 16px;
+      }
     }
-
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+  <div class="side">
 
-    <div class="ikon">?</div>
+    <div class="kort">
 
-    <h1>Spørgeskema</h1>
-
-    <p class="intro">
-      Udfyld venligst spørgeskemaet nedenfor.
-    </p>
-
-    <form
-      id="formular"
-      method="POST"
-      action="https://script.google.com/macros/s/AKfycby9SV2I_rq9dmZFLhIWc8ptbDTluWWORrT_h2IDlm6N1OAkXKierngWGuLXNWyayEva/exec"
-      target="svarFrame"
-    >
-
-      <label for="navn">
-        Navn
-      </label>
-
-      <input
-        type="text"
-        id="navn"
-        name="navn"
-        autocomplete="name"
-        required
+      <!-- Dit billede -->
+      <img
+        src="images/top.jpg"
+        alt="Special Minds"
+        class="topbillede"
       >
 
-      <label for="alder">
-        Alder
-      </label>
-
-      <input
-        type="number"
-        id="alder"
-        name="alder"
-        min="1"
-        max="120"
-        inputmode="numeric"
-        required
+      <!-- Ikon -->
+      <img
+        src="icons/icon-192.png"
+        alt=""
+        class="ikon"
       >
 
-      <label for="fritid">
-        Hvad laver du i din fritid?
-      </label>
+      <h1>Kom med dit forslag</h1>
 
-      <textarea
-        id="fritid"
-        name="fritid"
-        required
-      ></textarea>
+      <div class="beskrivelse">
+        <p>
+          Vi vil gerne høre dine idéer og forslag.
+        </p>
 
-      <button type="submit" id="sendKnap">
-        Send svar
+        <p>
+          Skriv dit navn og kom med et eller flere forslag
+          til noget, du synes kunne være spændende,
+          sjovt eller nyttigt.
+        </p>
+      </div>
+
+      <form
+        id="formular"
+        method="POST"
+        action="https://script.google.com/macros/s/AKfycby9SV2I_rq9dmZFLhIWc8ptbDTluWWORrT_h2IDlm6N1OAkXKierngWGuLXNWyayEva/exec"
+        target="googleSheetFrame"
+      >
+
+        <!-- NAVN -->
+        <label for="navn">
+          Dit navn
+        </label>
+
+        <input
+          type="text"
+          id="navn"
+          name="navn"
+          placeholder="Skriv dit navn"
+          required
+          autocomplete="name"
+        >
+
+        <!-- FORSLAG -->
+        <div id="forslagContainer">
+
+          <div class="forslag">
+
+            <div class="forslag-titel">
+              Forslag 1
+            </div>
+
+            <textarea
+              name="forslag"
+              placeholder="Skriv dit forslag her..."
+              required
+            ></textarea>
+
+          </div>
+
+        </div>
+
+        <!-- KNAP TIL FLERE FORSLAG -->
+        <button
+          type="button"
+          id="tilfoejKnap"
+        >
+          + Lav endnu et forslag
+        </button>
+
+        <!-- SEND -->
+        <button
+          type="submit"
+          id="sendKnap"
+        >
+          Send forslag
+        </button>
+
+      </form>
+
+      <!-- INSTALLER APP -->
+      <button
+        type="button"
+        id="installKnap"
+      >
+        Installer spørgeskemaet
       </button>
 
-    </form>
+      <!-- BESKED -->
+      <div id="besked"></div>
 
-    <iframe
-      name="svarFrame"
-      id="svarFrame"
-      title="Svar"
-    ></iframe>
-
-    <div id="besked"></div>
+    </div>
 
   </div>
 
+  <!-- Skjult iframe til Google Apps Script -->
+  <iframe
+    name="googleSheetFrame"
+    id="googleSheetFrame"
+    style="display:none;"
+  ></iframe>
 
-  <script>
-
-    const form = document.getElementById("formular");
-    const button = document.getElementById("sendKnap");
-    const besked = document.getElementById("besked");
-
-    let sender = false;
-
-
-    /*
-     * Formularen sendes til Google Apps Script.
-     */
-
-    form.addEventListener("submit", function() {
-
-      sender = true;
-
-      button.disabled = true;
-      button.textContent = "Sender...";
-
-      besked.textContent = "";
-      besked.className = "";
-
-    });
-
-
-    /*
-     * Google Apps Script svarer inde i den skjulte iframe.
-     *
-     * Når iframe'en er færdig med at indlæse svaret,
-     * betragter vi afsendelsen som gennemført.
-     */
-
-    document
-      .getElementById("svarFrame")
-      .addEventListener("load", function() {
-
-        if (!sender) {
-          return;
-        }
-
-        besked.textContent =
-          "Tak! Dit svar er blevet sendt.";
-
-        besked.className = "success";
-
-        form.reset();
-
-        button.disabled = false;
-        button.textContent = "Send svar";
-
-        sender = false;
-
-      });
-
-  </script>
+  <script src="app.js"></script>
 
 </body>
 </html>
-```
