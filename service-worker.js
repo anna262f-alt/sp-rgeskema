@@ -1,30 +1,34 @@
 const CACHE_NAME =
-  "sporgeskema-v1";
-
+  "forslag-app-v2";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./app.js",
-  "./manifest.json"
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./images/top.jpg"
 ];
 
 
+// Installer
 self.addEventListener(
   "install",
-  function(event) {
+  function (event) {
 
     event.waitUntil(
 
-      caches
-        .open(CACHE_NAME)
-        .then(function(cache) {
+      caches.open(CACHE_NAME)
+        .then(
+          function (cache) {
 
-          return cache.addAll(
-            FILES_TO_CACHE
-          );
+            return cache.addAll(
+              FILES_TO_CACHE
+            );
 
-        })
+          }
+        )
 
     );
 
@@ -34,36 +38,40 @@ self.addEventListener(
 );
 
 
+// Aktiver
 self.addEventListener(
   "activate",
-  function(event) {
+  function (event) {
 
     event.waitUntil(
 
       caches.keys()
-        .then(function(names) {
+        .then(
+          function (cacheNames) {
 
-          return Promise.all(
+            return Promise.all(
 
-            names
-              .filter(function(name) {
+              cacheNames.map(
+                function (cacheName) {
 
-                return name !==
-                  CACHE_NAME;
+                  if (
+                    cacheName !==
+                    CACHE_NAME
+                  ) {
 
-              })
+                    return caches.delete(
+                      cacheName
+                    );
 
-              .map(function(name) {
+                  }
 
-                return caches.delete(
-                  name
-                );
+                }
+              )
 
-              })
+            );
 
-          );
-
-        })
+          }
+        )
 
     );
 
@@ -73,34 +81,22 @@ self.addEventListener(
 );
 
 
+// Hent filer
 self.addEventListener(
   "fetch",
-  function(event) {
-
-    /*
-     * Google Apps Script API skal
-     * altid hentes fra nettet.
-     */
-
-    if (
-      event.request.url.includes(
-        "script.google.com"
-      )
-    ) {
-      return;
-    }
-
+  function (event) {
 
     event.respondWith(
 
-      fetch(event.request)
-        .catch(function() {
+      caches.match(event.request)
+        .then(
+          function (response) {
 
-          return caches.match(
-            event.request
-          );
+            return response ||
+              fetch(event.request);
 
-        })
+          }
+        )
 
     );
 
