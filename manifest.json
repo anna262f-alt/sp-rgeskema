@@ -1,12 +1,11 @@
 {
-  "name": "Spørgeskema",
-  "short_name": "Spørgeskema",
-  "description": "Spørgeskema",
+  "name": "Forslag",
+  "short_name": "Forslag",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f6f8",
   "theme_color": "#4285f4",
-  "orientation": "portrait",
+  "description": "Send forslag og idéer",
   "icons": [
     {
       "src": "icons/icon-192.png",
