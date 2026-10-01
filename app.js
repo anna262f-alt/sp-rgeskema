@@ -1,227 +1,298 @@
-/*
- * SPØRGESKEMA
- */
-
-
 const form =
   document.getElementById("formular");
 
-
-const button =
+const sendKnap =
   document.getElementById("sendKnap");
 
+const tilfoejKnap =
+  document.getElementById("tilfoejKnap");
+
+const forslagContainer =
+  document.getElementById("forslagContainer");
 
 const besked =
   document.getElementById("besked");
 
-
-const iframe =
-  document.getElementById("googleSheetFrame");
-
+const installKnap =
+  document.getElementById("installKnap");
 
 
-/*
- * Når formularen sendes
- */
+// --------------------------------------------------
+// LAV ET NYT FORSLAG
+// --------------------------------------------------
 
-form.addEventListener(
-  "submit",
-  function(event) {
+tilfoejKnap.addEventListener(
+  "click",
+  function () {
 
-    event.preventDefault();
+    const antal =
+      forslagContainer.querySelectorAll(
+        ".forslag"
+      ).length;
 
+    const nytNummer =
+      antal + 1;
 
-    /*
-     * Kontroller at felterne er udfyldt
-     */
+    const div =
+      document.createElement("div");
 
-    if (!form.checkValidity()) {
+    div.className = "forslag";
 
-      form.reportValidity();
+    div.innerHTML = `
+      <div class="forslag-titel">
+        Forslag ${nytNummer}
+      </div>
 
-      return;
-    }
+      <textarea
+        name="forslag"
+        placeholder="Skriv dit forslag her..."
+        required
+      ></textarea>
 
+      <button
+        type="button"
+        class="fjern-knap"
+      >
+        Fjern dette forslag
+      </button>
+    `;
 
-    /*
-     * Deaktiver knappen
-     */
+    forslagContainer.appendChild(div);
 
-    button.disabled = true;
+    // Fjern-knap
+    const fjernKnap =
+      div.querySelector(".fjern-knap");
 
-    button.textContent =
-      "Sender...";
+    fjernKnap.addEventListener(
+      "click",
+      function () {
 
+        div.remove();
 
-    besked.textContent = "";
+        opdaterForslagNumre();
 
-    besked.className = "";
-
-
-    /*
-     * Send formularen til
-     * Google Apps Script.
-     *
-     * target="googleSheetFrame"
-     * betyder at siden ikke forlader
-     * GitHub/PWA'en.
-     */
-
-    form.submit();
-
-
-    /*
-     * Google Apps Script behandler
-     * herefter dataene.
-     *
-     * Vi viser beskeden efter kort tid.
-     */
-
-    setTimeout(
-      function() {
-
-        besked.textContent =
-          "Tak! Dit svar er blevet gemt.";
-
-        besked.className =
-          "success";
-
-
-        /*
-         * Ryd formularen
-         */
-
-        form.reset();
-
-
-        /*
-         * Aktivér knappen igen
-         */
-
-        button.disabled = false;
-
-        button.textContent =
-          "Send svar";
-
-      },
-      1200
+      }
     );
 
   }
 );
 
 
+// --------------------------------------------------
+// OPDATER NUMRE PÅ FORSLAG
+// --------------------------------------------------
 
-/*
- * =================================
- * PWA INSTALLATION
- * =================================
- */
+function opdaterForslagNumre() {
 
+  const forslag =
+    forslagContainer.querySelectorAll(
+      ".forslag"
+    );
+
+  forslag.forEach(
+    function (element, index) {
+
+      const titel =
+        element.querySelector(
+          ".forslag-titel"
+        );
+
+      titel.textContent =
+        "Forslag " + (index + 1);
+
+    }
+  );
+
+}
+
+
+// --------------------------------------------------
+// SEND FORMULAREN
+// --------------------------------------------------
+
+form.addEventListener(
+  "submit",
+  function (event) {
+
+    event.preventDefault();
+
+    if (!form.checkValidity()) {
+
+      form.reportValidity();
+
+      return;
+
+    }
+
+    sendKnap.disabled = true;
+
+    sendKnap.textContent =
+      "Sender...";
+
+    besked.textContent = "";
+
+    besked.className = "";
+
+    besked.style.display = "none";
+
+    // Sender formularen til Google Apps Script
+    form.submit();
+
+  }
+);
+
+
+// --------------------------------------------------
+// MODTAG SVAR FRA GOOGLE APPS SCRIPT
+// --------------------------------------------------
+
+window.addEventListener(
+  "message",
+  function (event) {
+
+    if (!event.data) {
+      return;
+    }
+
+    // Succes
+    if (
+      event.data.success === true
+    ) {
+
+      besked.textContent =
+        "Tak! Dine forslag er blevet sendt.";
+
+      besked.className =
+        "success";
+
+      besked.style.display =
+        "block";
+
+      form.reset();
+
+      // Fjern alle ekstra forslag
+      const forslag =
+        forslagContainer.querySelectorAll(
+          ".forslag"
+        );
+
+      forslag.forEach(
+        function (element, index) {
+
+          if (index > 0) {
+            element.remove();
+          }
+
+        }
+      );
+
+      opdaterForslagNumre();
+
+      sendKnap.disabled = false;
+
+      sendKnap.textContent =
+        "Send forslag";
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    }
+
+
+    // Fejl
+    if (
+      event.data.success === false
+    ) {
+
+      besked.textContent =
+        "Der opstod en fejl. Prøv igen.";
+
+      besked.className =
+        "error";
+
+      besked.style.display =
+        "block";
+
+      sendKnap.disabled = false;
+
+      sendKnap.textContent =
+        "Send forslag";
+
+    }
+
+  }
+);
+
+
+// --------------------------------------------------
+// PWA INSTALLATION
+// --------------------------------------------------
 
 let deferredPrompt = null;
 
-
-const installButton =
-  document.getElementById("installKnap");
-
-
-
-/*
- * Browseren fortæller os,
- * når appen kan installeres.
- */
-
 window.addEventListener(
   "beforeinstallprompt",
-  function(event) {
+  function (event) {
 
     event.preventDefault();
 
     deferredPrompt = event;
 
-
-    /*
-     * Vis installationsknappen
-     */
-
-    installButton.style.display =
+    installKnap.style.display =
       "block";
 
   }
 );
 
 
-
-/*
- * Brugeren trykker
- * "Installér app"
- */
-
-installButton.addEventListener(
+installKnap.addEventListener(
   "click",
-  async function() {
+  async function () {
 
     if (!deferredPrompt) {
-
       return;
-
     }
-
 
     deferredPrompt.prompt();
 
-
     await deferredPrompt.userChoice;
-
 
     deferredPrompt = null;
 
-
-    installButton.style.display =
+    installKnap.style.display =
       "none";
 
   }
 );
 
-
-
-/*
- * Appen er installeret
- */
 
 window.addEventListener(
   "appinstalled",
-  function() {
+  function () {
 
-    installButton.style.display =
+    installKnap.style.display =
       "none";
 
   }
 );
 
 
-
-/*
- * =================================
- * SERVICE WORKER
- * =================================
- */
-
+// --------------------------------------------------
+// SERVICE WORKER
+// --------------------------------------------------
 
 if ("serviceWorker" in navigator) {
 
   window.addEventListener(
     "load",
-    function() {
+    function () {
 
       navigator.serviceWorker
-        .register(
-          "service-worker.js"
-        )
-
+        .register("service-worker.js")
         .then(
-          function() {
+          function () {
 
             console.log(
               "Service Worker registreret."
@@ -229,9 +300,8 @@ if ("serviceWorker" in navigator) {
 
           }
         )
-
         .catch(
-          function(error) {
+          function (error) {
 
             console.error(
               "Service Worker fejl:",
