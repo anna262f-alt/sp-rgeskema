@@ -225,60 +225,6 @@ window.addEventListener(
   }
 );
 
-
-// --------------------------------------------------
-// PWA INSTALLATION
-// --------------------------------------------------
-
-let deferredPrompt = null;
-
-window.addEventListener(
-  "beforeinstallprompt",
-  function (event) {
-
-    event.preventDefault();
-
-    deferredPrompt = event;
-
-    installKnap.style.display =
-      "block";
-
-  }
-);
-
-
-installKnap.addEventListener(
-  "click",
-  async function () {
-
-    if (!deferredPrompt) {
-      return;
-    }
-
-    deferredPrompt.prompt();
-
-    await deferredPrompt.userChoice;
-
-    deferredPrompt = null;
-
-    installKnap.style.display =
-      "none";
-
-  }
-);
-
-
-window.addEventListener(
-  "appinstalled",
-  function () {
-
-    installKnap.style.display =
-      "none";
-
-  }
-);
-
-
 // --------------------------------------------------
 // SERVICE WORKER
 // --------------------------------------------------
