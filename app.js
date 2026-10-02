@@ -117,30 +117,58 @@ form.addEventListener(
     event.preventDefault();
 
     if (!form.checkValidity()) {
-
       form.reportValidity();
-
       return;
-
     }
 
     sendKnap.disabled = true;
-
-    sendKnap.textContent =
-      "Sender...";
+    sendKnap.textContent = "Sender...";
 
     besked.textContent = "";
-
     besked.className = "";
-
     besked.style.display = "none";
 
-    // Sender formularen til Google Apps Script
+    // Send formularen til Google Apps Script
     form.submit();
+
+    // Vis besked efter at formularen er sendt
+    setTimeout(function () {
+
+      besked.textContent =
+        "Tak! Dit svar er modtaget.";
+
+      besked.className = "success";
+      besked.style.display = "block";
+
+      // Tøm formularen
+      form.reset();
+
+      // Fjern eventuelle ekstra forslag
+      const forslag =
+        forslagContainer.querySelectorAll(".forslag");
+
+      forslag.forEach(function (element, index) {
+
+        if (index > 0) {
+          element.remove();
+        }
+
+      });
+
+      opdaterForslagNumre();
+
+      sendKnap.disabled = false;
+      sendKnap.textContent = "Send forslag";
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    }, 2000);
 
   }
 );
-
 
 // --------------------------------------------------
 // MODTAG SVAR FRA GOOGLE APPS SCRIPT
