@@ -1,5 +1,5 @@
 const CACHE_NAME =
-  "forslag-app-v2";
+  "forslag-app-v3";
 
 const FILES_TO_CACHE = [
   "./",
