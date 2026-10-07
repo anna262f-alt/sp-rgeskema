@@ -1,4 +1,3 @@
-```javascript
 const form =
   document.getElementById("formular");
 
