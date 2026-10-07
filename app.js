@@ -225,36 +225,3 @@ window.addEventListener("message", function (event) {
   }
 
 });
-
-
-// --------------------------------------------------
-// SERVICE WORKER
-// --------------------------------------------------
-
-if ("serviceWorker" in navigator) {
-
-  window.addEventListener("load", function () {
-
-    navigator.serviceWorker.register(
-      "service-worker.js?v=5"
-    )
-    .then(function () {
-
-      console.log(
-        "Service Worker registreret."
-      );
-
-    })
-    .catch(function (error) {
-
-      console.error(
-        "Service Worker fejl:",
-        error
-      );
-
-    });
-
-  });
-
-}
-```
