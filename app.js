@@ -13,9 +13,6 @@ const forslagContainer =
 const besked =
   document.getElementById("besked");
 
-const installKnap =
-  document.getElementById("installKnap");
-
 
 // --------------------------------------------------
 // LAV ET NYT FORSLAG
