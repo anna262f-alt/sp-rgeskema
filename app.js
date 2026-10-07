@@ -1,79 +1,56 @@
 ```javascript
-const form =
-  document.getElementById("formular");
-
-const sendKnap =
-  document.getElementById("sendKnap");
-
-const tilfoejKnap =
-  document.getElementById("tilfoejKnap");
-
-const forslagContainer =
-  document.getElementById("forslagContainer");
-
-const besked =
-  document.getElementById("besked");
+const form = document.getElementById("formular");
+const sendKnap = document.getElementById("sendKnap");
+const tilfoejKnap = document.getElementById("tilfoejKnap");
+const forslagContainer = document.getElementById("forslagContainer");
+const besked = document.getElementById("besked");
 
 
 // --------------------------------------------------
 // LAV ET NYT FORSLAG
 // --------------------------------------------------
 
-tilfoejKnap.addEventListener(
-  "click",
-  function () {
+tilfoejKnap.addEventListener("click", function () {
 
-    const antal =
-      forslagContainer.querySelectorAll(
-        ".forslag"
-      ).length;
+  const antal =
+    forslagContainer.querySelectorAll(".forslag").length;
 
-    const nytNummer =
-      antal + 1;
+  const nytNummer = antal + 1;
 
-    const div =
-      document.createElement("div");
+  const div = document.createElement("div");
 
-    div.className = "forslag";
+  div.className = "forslag";
 
-    div.innerHTML = `
-      <div class="forslag-titel">
-        Forslag ${nytNummer}
-      </div>
+  const titel = document.createElement("div");
+  titel.className = "forslag-titel";
+  titel.textContent = "Forslag " + nytNummer;
 
-      <textarea
-        name="forslag"
-        placeholder="Skriv dit forslag her..."
-        required
-      ></textarea>
+  const textarea = document.createElement("textarea");
+  textarea.name = "forslag";
+  textarea.placeholder = "Skriv dit forslag her...";
+  textarea.required = true;
 
-      <button
-        type="button"
-        class="fjern-knap"
-      >
-        Fjern dette forslag
-      </button>
-    `;
+  const fjernKnap = document.createElement("button");
+  fjernKnap.type = "button";
+  fjernKnap.className = "fjern-knap";
+  fjernKnap.textContent = "Fjern dette forslag";
 
-    forslagContainer.appendChild(div);
+  div.appendChild(titel);
+  div.appendChild(textarea);
+  div.appendChild(fjernKnap);
+
+  forslagContainer.appendChild(div);
 
 
-    const fjernKnap =
-      div.querySelector(".fjern-knap");
+  fjernKnap.addEventListener("click", function () {
 
-    fjernKnap.addEventListener(
-      "click",
-      function () {
+    div.remove();
 
-        div.remove();
+    opdaterForslagNumre();
 
-        opdaterForslagNumre();
+  });
 
-      }
-    );
-
-  }
-);
+});
 
 
 // --------------------------------------------------
@@ -83,29 +60,25 @@ tilfoejKnap.addEventListener(
 function opdaterForslagNumre() {
 
   const forslag =
-    forslagContainer.querySelectorAll(
-      ".forslag"
-    );
+    forslagContainer.querySelectorAll(".forslag");
 
-  forslag.forEach(
-    function (element, index) {
+  forslag.forEach(function (element, index) {
 
-      const titel =
-        element.querySelector(
-          ".forslag-titel"
-        );
+    const titel =
+      element.querySelector(".forslag-titel");
 
+    if (titel) {
       titel.textContent =
         "Forslag " + (index + 1);
-
     }
-  );
+
+  });
 
 }
 
 
 // --------------------------------------------------
-// VIS SUCCESBESKED
+// VIS SUCCES
 // --------------------------------------------------
 
 function visSucces() {
@@ -113,11 +86,25 @@ function visSucces() {
   besked.textContent =
     "Tak! Dine forslag er blevet sendt.";
 
-  besked.className =
-    "success";
+  besked.className = "success";
 
-  besked.style.display =
-    "block";
+  besked.style.display = "block";
+
+}
+
+
+// --------------------------------------------------
+// VIS FEJL
+// --------------------------------------------------
+
+function visFejl() {
+
+  besked.textContent =
+    "Der opstod en fejl. Prøv igen.";
+
+  besked.className = "error";
+
+  besked.style.display = "block";
 
 }
 
@@ -131,19 +118,15 @@ function nulstilFormular() {
   form.reset();
 
   const forslag =
-    forslagContainer.querySelectorAll(
-      ".forslag"
-    );
+    forslagContainer.querySelectorAll(".forslag");
 
-  forslag.forEach(
-    function (element, index) {
+  forslag.forEach(function (element, index) {
 
-      if (index > 0) {
-        element.remove();
-      }
-
+    if (index > 0) {
+      element.remove();
     }
-  );
+
+  });
 
   opdaterForslagNumre();
 
@@ -151,170 +134,124 @@ function nulstilFormular() {
 
 
 // --------------------------------------------------
-// SEND FORMULAREN
+// SEND FORMULAR
 // --------------------------------------------------
 
-form.addEventListener(
-  "submit",
-  function (event) {
+form.addEventListener("submit", function (event) {
 
-    event.preventDefault();
+  event.preventDefault();
 
-    if (!form.checkValidity()) {
+  if (!form.checkValidity()) {
 
-      form.reportValidity();
+    form.reportValidity();
 
-      return;
+    return;
+
+  }
+
+  sendKnap.disabled = true;
+
+  sendKnap.textContent = "Sender...";
+
+  besked.textContent = "";
+
+  besked.className = "";
+
+  besked.style.display = "none";
+
+
+  // Send formularen til Google Apps Script
+  form.submit();
+
+
+  // Google Apps Script svarer gennem iframe.
+  // Vi giver det lidt tid.
+  setTimeout(function () {
+
+    if (sendKnap.disabled) {
+
+      visSucces();
+
+      nulstilFormular();
+
+      sendKnap.disabled = false;
+
+      sendKnap.textContent = "Send forslag";
 
     }
 
-    sendKnap.disabled = true;
+  }, 2000);
 
-    sendKnap.textContent =
-      "Sender...";
-
-    besked.textContent = "";
-
-    besked.className = "";
-
-    besked.style.display =
-      "none";
-
-
-    // Send formularen til Google Apps Script
-    form.submit();
-
-
-    // Vent på Google Apps Script.
-    // Hvis message-event kommer, håndterer
-    // den det nedenfor.
-    //
-    // Denne timer er kun en sikkerhed, så
-    // brugeren får en besked, selv hvis
-    // iframe'en ikke sender message tilbage.
-
-    setTimeout(
-      function () {
-
-        if (
-          sendKnap.disabled
-        ) {
-
-          visSucces();
-
-          nulstilFormular();
-
-          sendKnap.disabled =
-            false;
-
-          sendKnap.textContent =
-            "Send forslag";
-
-        }
-
-      },
-      2000
-    );
-
-  }
-);
+});
 
 
 // --------------------------------------------------
 // MODTAG SVAR FRA GOOGLE APPS SCRIPT
 // --------------------------------------------------
 
-window.addEventListener(
-  "message",
-  function (event) {
+window.addEventListener("message", function (event) {
 
-    if (!event.data) {
-      return;
-    }
+  if (!event.data) {
+    return;
+  }
 
 
-    // Google Apps Script siger OK
-    if (
-      event.data.success === true
-    ) {
+  // Succes
+  if (event.data.success === true) {
 
-      visSucces();
+    visSucces();
 
-      nulstilFormular();
+    nulstilFormular();
 
-      sendKnap.disabled =
-        false;
+    sendKnap.disabled = false;
 
-      sendKnap.textContent =
-        "Send forslag";
-
-    }
-
-
-    // Google Apps Script siger fejl
-    if (
-      event.data.success === false
-    ) {
-
-      besked.textContent =
-        "Der opstod en fejl. Prøv igen.";
-
-      besked.className =
-        "error";
-
-      besked.style.display =
-        "block";
-
-      sendKnap.disabled =
-        false;
-
-      sendKnap.textContent =
-        "Send forslag";
-
-    }
+    sendKnap.textContent = "Send forslag";
 
   }
-);
+
+
+  // Fejl
+  if (event.data.success === false) {
+
+    visFejl();
+
+    sendKnap.disabled = false;
+
+    sendKnap.textContent = "Send forslag";
+
+  }
+
+});
 
 
 // --------------------------------------------------
 // SERVICE WORKER
 // --------------------------------------------------
 
-if (
-  "serviceWorker" in navigator
-) {
+if ("serviceWorker" in navigator) {
 
-  window.addEventListener(
-    "load",
-    function () {
+  window.addEventListener("load", function () {
 
-      navigator.serviceWorker
-        .register(
-          "service-worker.js?v=5"
-        )
-        .then(
-          function () {
+    navigator.serviceWorker.register(
+      "service-worker.js?v=5"
+    )
+    .then(function () {
 
-            console.log(
-              "Service Worker registreret."
-            );
+      console.log(
+        "Service Worker registreret."
+      );
 
-          }
-        )
-        .catch(
-          function (error) {
+    })
+    .catch(function (error) {
 
-            console.error(
-              "Service Worker fejl:",
-              error
-            );
+      console.error(
+        "Service Worker fejl:",
+        error
+      );
 
-          }
-        );
+    });
 
-    }
-  );
+  });
 
 }
 ```
