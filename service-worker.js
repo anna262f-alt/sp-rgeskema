@@ -1,9 +1,7 @@
 ```javascript
-const CACHE_NAME = "forslag-app-v5";
+const CACHE_NAME = "forslag-static-v5";
 
 const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -15,143 +13,193 @@ const FILES_TO_CACHE = [
 // INSTALLER
 // --------------------------------------------------
 
-self.addEventListener("install", function (event) {
+self.addEventListener(
+  "install",
+  function (event) {
 
-  event.waitUntil(
+    event.waitUntil(
 
-    caches.open(CACHE_NAME)
-      .then(function (cache) {
+      caches.open(CACHE_NAME)
+        .then(
+          function (cache) {
 
-        return cache.addAll(FILES_TO_CACHE);
+            return cache.addAll(
+              FILES_TO_CACHE
+            );
 
-      })
+          }
+        )
 
-  );
+    );
 
-  self.skipWaiting();
+    self.skipWaiting();
 
-});
+  }
+);
 
 
 // --------------------------------------------------
 // AKTIVER
 // --------------------------------------------------
 
-self.addEventListener("activate", function (event) {
+self.addEventListener(
+  "activate",
+  function (event) {
 
-  event.waitUntil(
+    event.waitUntil(
 
-    caches.keys()
-      .then(function (cacheNames) {
+      caches.keys()
+        .then(
+          function (cacheNames) {
 
-        return Promise.all(
+            return Promise.all(
 
-          cacheNames.map(function (cacheName) {
+              cacheNames.map(
+                function (cacheName) {
 
-            if (cacheName !== CACHE_NAME) {
+                  if (
+                    cacheName !==
+                    CACHE_NAME
+                  ) {
 
-              return caches.delete(cacheName);
+                    return caches.delete(
+                      cacheName
+                    );
 
-            }
+                  }
 
-          })
+                }
+              )
 
-        );
+            );
 
-      })
+          }
+        )
 
-  );
+    );
 
-  self.clients.claim();
+    self.clients.claim();
 
-});
+  }
+);
 
 
 // --------------------------------------------------
 // HENT FILER
 // --------------------------------------------------
 
-self.addEventListener("fetch", function (event) {
+self.addEventListener(
+  "fetch",
+  function (event) {
 
-  const request = event.request;
+    const request =
+      event.request;
 
 
-  // ------------------------------------------------
-  // HTML
-  // Hent altid den nyeste version fra GitHub
-  // ------------------------------------------------
+    // ------------------------------------------------
+    // HTML
+    // Hent altid fra internettet
+    // ------------------------------------------------
 
-  if (
-    request.mode === "navigate" ||
-    request.url.endsWith("/index.html")
-  ) {
+    if (
+      request.mode === "navigate" ||
+      request.url.endsWith("/index.html")
+    ) {
+
+      event.respondWith(
+
+        fetch(
+          request,
+          {
+            cache: "no-store"
+          }
+        )
+        .catch(
+          function () {
+
+            return caches.match(
+              "./index.html"
+            );
+
+          }
+        )
+
+      );
+
+      return;
+
+    }
+
+
+    // ------------------------------------------------
+    // JAVASCRIPT
+    // Hent altid fra internettet
+    // ------------------------------------------------
+
+    if (
+      request.url.includes("/app.js")
+    ) {
+
+      event.respondWith(
+
+        fetch(
+          request,
+          {
+            cache: "no-store"
+          }
+        )
+
+      );
+
+      return;
+
+    }
+
+
+    // ------------------------------------------------
+    // SERVICE WORKER
+    // ------------------------------------------------
+
+    if (
+      request.url.includes(
+        "/service-worker.js"
+      )
+    ) {
+
+      event.respondWith(
+
+        fetch(
+          request,
+          {
+            cache: "no-store"
+          }
+        )
+
+      );
+
+      return;
+
+    }
+
+
+    // ------------------------------------------------
+    // ANDRE FILER
+    // ------------------------------------------------
 
     event.respondWith(
 
-      fetch(request, {
-        cache: "no-store"
-      })
-      .then(function (response) {
+      caches.match(request)
+        .then(
+          function (response) {
 
-        return response;
+            return response ||
+              fetch(request);
 
-      })
-      .catch(function () {
-
-        return caches.match(request);
-
-      })
+          }
+        )
 
     );
 
-    return;
   }
-
-
-  // ------------------------------------------------
-  // JAVASCRIPT
-  // Hent altid den nyeste app.js
-  // ------------------------------------------------
-
-  if (request.url.endsWith("/app.js")) {
-
-    event.respondWith(
-
-      fetch(request, {
-        cache: "no-store"
-      })
-      .then(function (response) {
-
-        return response;
-
-      })
-      .catch(function () {
-
-        return caches.match(request);
-
-      })
-
-    );
-
-    return;
-  }
-
-
-  // ------------------------------------------------
-  // ANDRE FILER
-  // Brug cache hvis filen allerede findes
-  // ------------------------------------------------
-
-  event.respondWith(
-
-    caches.match(request)
-      .then(function (response) {
-
-        return response || fetch(request);
-
-      })
-
-  );
-
-});
+);
 ```
