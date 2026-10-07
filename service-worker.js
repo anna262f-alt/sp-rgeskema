@@ -1,10 +1,8 @@
-const CACHE_NAME =
-  "forslag-app-v3";
+const CACHE_NAME = "forslag-app-v4";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
-  "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -12,93 +10,144 @@ const FILES_TO_CACHE = [
 ];
 
 
-// Installer
-self.addEventListener(
-  "install",
-  function (event) {
+// --------------------------------------------------
+// INSTALLER
+// --------------------------------------------------
 
-    event.waitUntil(
+self.addEventListener("install", function (event) {
 
-      caches.open(CACHE_NAME)
-        .then(
-          function (cache) {
+  event.waitUntil(
 
-            return cache.addAll(
-              FILES_TO_CACHE
-            );
+    caches.open(CACHE_NAME)
+      .then(function (cache) {
 
-          }
-        )
+        return cache.addAll(FILES_TO_CACHE);
 
-    );
+      })
 
-    self.skipWaiting();
+  );
 
-  }
-);
+  // Aktiver den nye Service Worker med det samme
+  self.skipWaiting();
+
+});
 
 
-// Aktiver
-self.addEventListener(
-  "activate",
-  function (event) {
+// --------------------------------------------------
+// AKTIVER
+// --------------------------------------------------
 
-    event.waitUntil(
+self.addEventListener("activate", function (event) {
 
-      caches.keys()
-        .then(
-          function (cacheNames) {
+  event.waitUntil(
 
-            return Promise.all(
+    caches.keys()
+      .then(function (cacheNames) {
 
-              cacheNames.map(
-                function (cacheName) {
+        return Promise.all(
 
-                  if (
-                    cacheName !==
-                    CACHE_NAME
-                  ) {
+          cacheNames.map(function (cacheName) {
 
-                    return caches.delete(
-                      cacheName
-                    );
+            if (cacheName !== CACHE_NAME) {
 
-                  }
+              return caches.delete(cacheName);
 
-                }
-              )
+            }
 
-            );
+          })
 
-          }
-        )
+        );
 
-    );
+      })
 
-    self.clients.claim();
+  );
 
-  }
-);
+  // Tag kontrol over siden med det samme
+  self.clients.claim();
+
+});
 
 
-// Hent filer
-self.addEventListener(
-  "fetch",
-  function (event) {
+// --------------------------------------------------
+// HENT FILER
+// --------------------------------------------------
+
+self.addEventListener("fetch", function (event) {
+
+  const request = event.request;
+
+  // HTML skal altid hentes frisk
+  if (
+    request.mode === "navigate" ||
+    request.url.endsWith("/index.html")
+  ) {
 
     event.respondWith(
 
-      caches.match(event.request)
-        .then(
-          function (response) {
+      fetch(request)
+        .then(function (response) {
 
-            return response ||
-              fetch(event.request);
+          // Gem den nye version i cachen
+          const responseClone = response.clone();
 
-          }
-        )
+          caches.open(CACHE_NAME)
+            .then(function (cache) {
+
+              cache.put(request, responseClone);
+
+            });
+
+          return response;
+
+        })
+        .catch(function () {
+
+          // Hvis internettet ikke virker,
+          // brug den gemte version
+          return caches.match(request);
+
+        })
 
     );
 
+    return;
   }
-);
+
+
+  // app.js skal også altid hentes frisk
+  if (request.url.endsWith("/app.js")) {
+
+    event.respondWith(
+
+      fetch(request)
+        .then(function (response) {
+
+          return response;
+
+        })
+        .catch(function () {
+
+          return caches.match(request);
+
+        })
+
+    );
+
+    return;
+  }
+
+
+  // Andre filer må gerne bruge cache
+  event.respondWith(
+
+    caches.match(request)
+      .then(function (response) {
+
+        return response || fetch(request);
+
+      })
+
+  );
+
+});
+```
