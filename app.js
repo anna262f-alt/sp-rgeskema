@@ -1,3 +1,4 @@
+```javascript
 const form =
   document.getElementById("formular");
 
@@ -56,6 +57,7 @@ tilfoejKnap.addEventListener(
 
     forslagContainer.appendChild(div);
 
+
     const fjernKnap =
       div.querySelector(".fjern-knap");
 
@@ -103,7 +105,7 @@ function opdaterForslagNumre() {
 
 
 // --------------------------------------------------
-// VIS BESKED
+// VIS SUCCESBESKED
 // --------------------------------------------------
 
 function visSucces() {
@@ -179,35 +181,39 @@ form.addEventListener(
       "none";
 
 
-    // Send formularen til Google Sheets
+    // Send formularen til Google Apps Script
     form.submit();
 
 
-    // Google Apps Script sender ikke altid
-    // en message tilbage gennem iframe'en.
+    // Vent på Google Apps Script.
+    // Hvis message-event kommer, håndterer
+    // den det nedenfor.
     //
-    // Derfor viser vi bekræftelsen efter
-    // kort tid, når formularen er sendt.
+    // Denne timer er kun en sikkerhed, så
+    // brugeren får en besked, selv hvis
+    // iframe'en ikke sender message tilbage.
+
     setTimeout(
       function () {
 
-        visSucces();
+        if (
+          sendKnap.disabled
+        ) {
 
-        nulstilFormular();
+          visSucces();
 
-        sendKnap.disabled =
-          false;
+          nulstilFormular();
 
-        sendKnap.textContent =
-          "Send forslag";
+          sendKnap.disabled =
+            false;
 
-        besked.scrollIntoView({
-          behavior: "smooth",
-          block: "center"
-        });
+          sendKnap.textContent =
+            "Send forslag";
+
+        }
 
       },
-      1500
+      2000
     );
 
   }
@@ -226,6 +232,8 @@ window.addEventListener(
       return;
     }
 
+
+    // Google Apps Script siger OK
     if (
       event.data.success === true
     ) {
@@ -243,6 +251,7 @@ window.addEventListener(
     }
 
 
+    // Google Apps Script siger fejl
     if (
       event.data.success === false
     ) {
@@ -272,7 +281,9 @@ window.addEventListener(
 // SERVICE WORKER
 // --------------------------------------------------
 
-if ("serviceWorker" in navigator) {
+if (
+  "serviceWorker" in navigator
+) {
 
   window.addEventListener(
     "load",
