@@ -1,3 +1,4 @@
+```javascript
 const form =
   document.getElementById("formular");
 
@@ -56,7 +57,6 @@ tilfoejKnap.addEventListener(
 
     forslagContainer.appendChild(div);
 
-    // Fjern-knap
     const fjernKnap =
       div.querySelector(".fjern-knap");
 
@@ -104,6 +104,52 @@ function opdaterForslagNumre() {
 
 
 // --------------------------------------------------
+// VIS BESKED
+// --------------------------------------------------
+
+function visSucces() {
+
+  besked.textContent =
+    "Tak! Dine forslag er blevet sendt.";
+
+  besked.className =
+    "success";
+
+  besked.style.display =
+    "block";
+
+}
+
+
+// --------------------------------------------------
+// NULSTIL FORMULAR
+// --------------------------------------------------
+
+function nulstilFormular() {
+
+  form.reset();
+
+  const forslag =
+    forslagContainer.querySelectorAll(
+      ".forslag"
+    );
+
+  forslag.forEach(
+    function (element, index) {
+
+      if (index > 0) {
+        element.remove();
+      }
+
+    }
+  );
+
+  opdaterForslagNumre();
+
+}
+
+
+// --------------------------------------------------
 // SEND FORMULAREN
 // --------------------------------------------------
 
@@ -114,58 +160,60 @@ form.addEventListener(
     event.preventDefault();
 
     if (!form.checkValidity()) {
+
       form.reportValidity();
+
       return;
+
     }
 
     sendKnap.disabled = true;
-    sendKnap.textContent = "Sender...";
+
+    sendKnap.textContent =
+      "Sender...";
 
     besked.textContent = "";
-    besked.className = "";
-    besked.style.display = "none";
 
-    // Send formularen til Google Apps Script
+    besked.className = "";
+
+    besked.style.display =
+      "none";
+
+
+    // Send formularen til Google Sheets
     form.submit();
 
-    // Vis besked efter at formularen er sendt
-    setTimeout(function () {
 
-      besked.textContent =
-        "Tak! Dit svar er modtaget.";
+    // Google Apps Script sender ikke altid
+    // en message tilbage gennem iframe'en.
+    //
+    // Derfor viser vi bekræftelsen efter
+    // kort tid, når formularen er sendt.
+    setTimeout(
+      function () {
 
-      besked.className = "success";
-      besked.style.display = "block";
+        visSucces();
 
-      // Tøm formularen
-      form.reset();
+        nulstilFormular();
 
-      // Fjern eventuelle ekstra forslag
-      const forslag =
-        forslagContainer.querySelectorAll(".forslag");
+        sendKnap.disabled =
+          false;
 
-      forslag.forEach(function (element, index) {
+        sendKnap.textContent =
+          "Send forslag";
 
-        if (index > 0) {
-          element.remove();
-        }
+        besked.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
 
-      });
-
-      opdaterForslagNumre();
-
-      sendKnap.disabled = false;
-      sendKnap.textContent = "Send forslag";
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
-    }, 2000);
+      },
+      1500
+    );
 
   }
 );
+
 
 // --------------------------------------------------
 // MODTAG SVAR FRA GOOGLE APPS SCRIPT
@@ -179,54 +227,23 @@ window.addEventListener(
       return;
     }
 
-    // Succes
     if (
       event.data.success === true
     ) {
 
-      besked.textContent =
-        "Tak! Dine forslag er blevet sendt.";
+      visSucces();
 
-      besked.className =
-        "success";
+      nulstilFormular();
 
-      besked.style.display =
-        "block";
-
-      form.reset();
-
-      // Fjern alle ekstra forslag
-      const forslag =
-        forslagContainer.querySelectorAll(
-          ".forslag"
-        );
-
-      forslag.forEach(
-        function (element, index) {
-
-          if (index > 0) {
-            element.remove();
-          }
-
-        }
-      );
-
-      opdaterForslagNumre();
-
-      sendKnap.disabled = false;
+      sendKnap.disabled =
+        false;
 
       sendKnap.textContent =
         "Send forslag";
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
     }
 
 
-    // Fejl
     if (
       event.data.success === false
     ) {
@@ -240,7 +257,8 @@ window.addEventListener(
       besked.style.display =
         "block";
 
-      sendKnap.disabled = false;
+      sendKnap.disabled =
+        false;
 
       sendKnap.textContent =
         "Send forslag";
@@ -249,6 +267,7 @@ window.addEventListener(
 
   }
 );
+
 
 // --------------------------------------------------
 // SERVICE WORKER
@@ -261,7 +280,9 @@ if ("serviceWorker" in navigator) {
     function () {
 
       navigator.serviceWorker
-        .register("service-worker.js")
+        .register(
+          "service-worker.js?v=5"
+        )
         .then(
           function () {
 
@@ -286,3 +307,4 @@ if ("serviceWorker" in navigator) {
   );
 
 }
+```
