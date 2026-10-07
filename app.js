@@ -1,8 +1,11 @@
-```javascript
 const form = document.getElementById("formular");
+
 const sendKnap = document.getElementById("sendKnap");
+
 const tilfoejKnap = document.getElementById("tilfoejKnap");
+
 const forslagContainer = document.getElementById("forslagContainer");
+
 const besked = document.getElementById("besked");
 
 
