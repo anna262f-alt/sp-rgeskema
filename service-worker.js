@@ -1,4 +1,5 @@
-const CACHE_NAME = "forslag-app-v4";
+```javascript
+const CACHE_NAME = "forslag-app-v5";
 
 const FILES_TO_CACHE = [
   "./",
@@ -27,7 +28,6 @@ self.addEventListener("install", function (event) {
 
   );
 
-  // Aktiver den nye Service Worker med det samme
   self.skipWaiting();
 
 });
@@ -62,7 +62,6 @@ self.addEventListener("activate", function (event) {
 
   );
 
-  // Tag kontrol over siden med det samme
   self.clients.claim();
 
 });
@@ -76,7 +75,12 @@ self.addEventListener("fetch", function (event) {
 
   const request = event.request;
 
-  // HTML skal altid hentes frisk
+
+  // ------------------------------------------------
+  // HTML
+  // Hent altid den nyeste version fra GitHub
+  // ------------------------------------------------
+
   if (
     request.mode === "navigate" ||
     request.url.endsWith("/index.html")
@@ -84,29 +88,19 @@ self.addEventListener("fetch", function (event) {
 
     event.respondWith(
 
-      fetch(request)
-        .then(function (response) {
+      fetch(request, {
+        cache: "no-store"
+      })
+      .then(function (response) {
 
-          // Gem den nye version i cachen
-          const responseClone = response.clone();
+        return response;
 
-          caches.open(CACHE_NAME)
-            .then(function (cache) {
+      })
+      .catch(function () {
 
-              cache.put(request, responseClone);
+        return caches.match(request);
 
-            });
-
-          return response;
-
-        })
-        .catch(function () {
-
-          // Hvis internettet ikke virker,
-          // brug den gemte version
-          return caches.match(request);
-
-        })
+      })
 
     );
 
@@ -114,22 +108,28 @@ self.addEventListener("fetch", function (event) {
   }
 
 
-  // app.js skal også altid hentes frisk
+  // ------------------------------------------------
+  // JAVASCRIPT
+  // Hent altid den nyeste app.js
+  // ------------------------------------------------
+
   if (request.url.endsWith("/app.js")) {
 
     event.respondWith(
 
-      fetch(request)
-        .then(function (response) {
+      fetch(request, {
+        cache: "no-store"
+      })
+      .then(function (response) {
 
-          return response;
+        return response;
 
-        })
-        .catch(function () {
+      })
+      .catch(function () {
 
-          return caches.match(request);
+        return caches.match(request);
 
-        })
+      })
 
     );
 
@@ -137,7 +137,11 @@ self.addEventListener("fetch", function (event) {
   }
 
 
-  // Andre filer må gerne bruge cache
+  // ------------------------------------------------
+  // ANDRE FILER
+  // Brug cache hvis filen allerede findes
+  // ------------------------------------------------
+
   event.respondWith(
 
     caches.match(request)
