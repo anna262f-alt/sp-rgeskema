@@ -1,113 +1,80 @@
 const form = document.getElementById("formular");
-
 const sendKnap = document.getElementById("sendKnap");
-
-const tilfoejKnap = document.getElementById("tilfoejKnap");
-
-const forslagContainer = document.getElementById("forslagContainer");
-
 const besked = document.getElementById("besked");
 
+const anonymCheckbox = document.getElementById("anonym");
+const navnInput = document.getElementById("navn");
+
+const andetCheckbox = document.getElementById("andetCheckbox");
+const andetFelt = document.getElementById("andetFelt");
+const andetInput = document.getElementById("andet");
+
+const googleSheetFrame = document.getElementById("googleSheetFrame");
+
 
 // --------------------------------------------------
-// LAV ET NYT FORSLAG
+// ANONYM
 // --------------------------------------------------
 
-tilfoejKnap.addEventListener("click", function () {
+anonymCheckbox.addEventListener("change", function () {
 
-  const antal =
-    forslagContainer.querySelectorAll(".forslag").length;
-
-  const nytNummer = antal + 1;
-
-  const div = document.createElement("div");
-
-  div.className = "forslag";
-
-  const titel = document.createElement("div");
-  titel.className = "forslag-titel";
-  titel.textContent = "Forslag " + nytNummer;
-
-  const textarea = document.createElement("textarea");
-  textarea.name = "forslag";
-  textarea.placeholder = "Skriv dit forslag her...";
-  textarea.required = true;
-
-  const fjernKnap = document.createElement("button");
-  fjernKnap.type = "button";
-  fjernKnap.className = "fjern-knap";
-  fjernKnap.textContent = "Fjern dette forslag";
-
-  div.appendChild(titel);
-  div.appendChild(textarea);
-  div.appendChild(fjernKnap);
-
-  forslagContainer.appendChild(div);
-
-
-  fjernKnap.addEventListener("click", function () {
-
-    div.remove();
-
-    opdaterForslagNumre();
-
-  });
+  if (anonymCheckbox.checked) {
+    navnInput.value = "";
+    navnInput.disabled = true;
+  } else {
+    navnInput.disabled = false;
+  }
 
 });
 
 
 // --------------------------------------------------
-// OPDATER NUMRE PÅ FORSLAG
+// ANDET
 // --------------------------------------------------
 
-function opdaterForslagNumre() {
+andetCheckbox.addEventListener("change", function () {
 
-  const forslag =
-    forslagContainer.querySelectorAll(".forslag");
+  if (andetCheckbox.checked) {
 
-  forslag.forEach(function (element, index) {
+    andetFelt.classList.add("vis");
+    andetInput.focus();
 
-    const titel =
-      element.querySelector(".forslag-titel");
+  } else {
 
-    if (titel) {
-      titel.textContent =
-        "Forslag " + (index + 1);
-    }
+    andetFelt.classList.remove("vis");
+    andetInput.value = "";
 
-  });
+  }
 
-}
+});
 
 
 // --------------------------------------------------
-// VIS SUCCES
+// VIS BESKED
 // --------------------------------------------------
 
 function visSucces() {
 
-  besked.textContent =
-    "Tak! Dine forslag er blevet sendt.";
-
   besked.className = "success";
 
-  besked.style.display = "block";
+  besked.textContent =
+    "Tak! Dit svar er sendt.";
+
+  sendKnap.disabled = false;
+  sendKnap.textContent = "Send mit svar";
 
 }
 
 
-// --------------------------------------------------
-// VIS FEJL
-// --------------------------------------------------
-
 function visFejl() {
-
-  besked.textContent =
-    "Der opstod en fejl. Prøv igen.";
 
   besked.className = "error";
 
-  besked.style.display = "block";
+  besked.textContent =
+    "Der skete en fejl. Prøv venligst igen.";
+
+  sendKnap.disabled = false;
+  sendKnap.textContent = "Send mit svar";
 
 }
 
@@ -120,20 +87,41 @@ function nulstilFormular() {
 
   form.reset();
 
-  const forslag =
-    forslagContainer.querySelectorAll(".forslag");
+  navnInput.disabled = false;
 
-  forslag.forEach(function (element, index) {
-
-    if (index > 0) {
-      element.remove();
-    }
-
-  });
-
-  opdaterForslagNumre();
+  andetFelt.classList.remove("vis");
 
 }
+
+
+// --------------------------------------------------
+// MODTAG BESKED FRA GOOGLE APPS SCRIPT
+// --------------------------------------------------
+
+window.addEventListener("message", function (event) {
+
+  if (event.source !== googleSheetFrame.contentWindow) {
+    return;
+  }
+
+  if (!event.data) {
+    return;
+  }
+
+  if (event.data.success === true) {
+
+    nulstilFormular();
+    visSucces();
+
+  }
+
+  if (event.data.success === false) {
+
+    visFejl();
+
+  }
+
+});
 
 
 // --------------------------------------------------
@@ -144,84 +132,88 @@ form.addEventListener("submit", function (event) {
 
   event.preventDefault();
 
-  if (!form.checkValidity()) {
+  // Fjern gammel besked
+  besked.className = "";
+  besked.textContent = "";
 
-    form.reportValidity();
+  // Tjek om mindst ét ønske er valgt
+  const valgteOnsker =
+    document.querySelectorAll(
+      'input[name="ønske"]:checked'
+    );
+
+  if (valgteOnsker.length === 0) {
+
+    besked.className = "error";
+
+    besked.textContent =
+      "Vælg mindst én ting, du gerne vil kunne se på infoskærmen.";
 
     return;
+  }
+
+
+  // Hvis "Andet" er valgt, skal der stå noget
+  if (
+    andetCheckbox.checked &&
+    andetInput.value.trim() === ""
+  ) {
+
+    besked.className = "error";
+
+    besked.textContent =
+      "Skriv gerne, hvad du ellers kunne tænke dig.";
+
+    andetInput.focus();
+
+    return;
+  }
+
+
+  // Hvis ikke anonym, må navnet gerne være udfyldt
+  if (!anonymCheckbox.checked) {
+
+    if (navnInput.value.trim() === "") {
+
+      besked.className = "error";
+
+      besked.textContent =
+        "Skriv dit navn eller vælg 'Jeg vil gerne være anonym'.";
+
+      navnInput.focus();
+
+      return;
+    }
 
   }
 
+
+  // Vis sender-besked
+  besked.className = "success";
+
+  besked.textContent =
+    "Sender dit svar...";
+
+
+  // Deaktiver knappen
   sendKnap.disabled = true;
-
   sendKnap.textContent = "Sender...";
-
-  besked.textContent = "";
-
-  besked.className = "";
-
-  besked.style.display = "none";
 
 
   // Send formularen til Google Apps Script
   form.submit();
 
 
-  // Google Apps Script svarer gennem iframe.
-  // Vi giver det lidt tid.
+  // Hvis Google ikke svarer efter noget tid,
+  // viser vi en fejl.
   setTimeout(function () {
 
     if (sendKnap.disabled) {
 
-      visSucces();
-
-      nulstilFormular();
-
-      sendKnap.disabled = false;
-
-      sendKnap.textContent = "Send forslag";
+      visFejl();
 
     }
 
-  }, 2000);
-
-});
-
-
-// --------------------------------------------------
-// MODTAG SVAR FRA GOOGLE APPS SCRIPT
-// --------------------------------------------------
-
-window.addEventListener("message", function (event) {
-
-  if (!event.data) {
-    return;
-  }
-
-
-  // Succes
-  if (event.data.success === true) {
-
-    visSucces();
-
-    nulstilFormular();
-
-    sendKnap.disabled = false;
-
-    sendKnap.textContent = "Send forslag";
-
-  }
-
-
-  // Fejl
-  if (event.data.success === false) {
-
-    visFejl();
-
-    sendKnap.disabled = false;
-
-    sendKnap.textContent = "Send forslag";
-
-  }
+  }, 10000);
 
 });
