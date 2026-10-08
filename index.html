@@ -3,37 +3,18 @@
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  >
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <meta name="theme-color" content="#4285f4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Forslag">
 
-  <meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="default"
-  >
-
-  <meta
-    name="apple-mobile-web-app-title"
-    content="Forslag"
-  >
-
-  <title>Forslag</title>
+  <title>Special Minds infoskærm</title>
 
   <link rel="manifest" href="manifest.json">
-
-  <link
-    rel="icon"
-    type="image/png"
-    href="icons/icon-192.png"
-  >
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
 
   <style>
     * {
@@ -49,7 +30,7 @@
     }
 
     .side {
-      max-width: 700px;
+      max-width: 750px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -69,6 +50,13 @@
       border-radius: 15px;
       display: block;
       margin-bottom: 22px;
+    }
+
+    .ikon {
+      width: 55px;
+      height: 55px;
+      margin: 0 auto 10px auto;
+      display: block;
     }
 
     h1 {
@@ -99,7 +87,15 @@
       margin-top: 20px;
     }
 
-    input,
+    .forklaring {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #666;
+      margin-top: -2px;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"],
     textarea {
       width: 100%;
       padding: 14px;
@@ -111,68 +107,120 @@
       background: white;
     }
 
-    input:focus,
+    input[type="text"]:focus,
     textarea:focus {
       border-color: #4285f4;
     }
 
+    input[type="text"]:disabled {
+      background: #eeeeee;
+      color: #888;
+    }
+
     textarea {
-      min-height: 110px;
+      min-height: 120px;
       resize: vertical;
     }
 
-    .forslag {
-      margin-top: 20px;
-      padding: 18px;
+    .anonym-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 15px;
+      padding: 15px;
       background: #f7f9fb;
-      border-radius: 14px;
       border: 1px solid #e1e5e9;
+      border-radius: 12px;
     }
 
-    .forslag-titel {
+    .anonym-box input {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .anonym-box label {
+      margin: 0;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .valg-overskrift {
+      font-size: 18px;
       font-weight: bold;
-      font-size: 17px;
+      margin-top: 30px;
       margin-bottom: 8px;
     }
 
-    .fjern-knap {
-      margin-top: 8px;
-      background: transparent;
-      border: none;
-      color: #d32f2f;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 5px 0;
+    .valg-forklaring {
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 15px;
     }
 
-    .fjern-knap:hover {
-      text-decoration: underline;
+    .valg-liste {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 10px;
-      padding: 15px;
-      font-size: 17px;
-      font-weight: bold;
+    .valg {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      background: #f7f9fb;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
       cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .valg:hover {
+      border-color: #4285f4;
+    }
+
+    .valg input {
+      width: 25px;
+      height: 25px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .valg span {
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .andet-felt {
+      display: none;
       margin-top: 15px;
+      padding: 18px;
+      background: #f7f9fb;
+      border-radius: 12px;
+      border: 1px solid #e1e5e9;
     }
 
-    #tilfoejKnap {
-      background: #e8f0fe;
-      color: #1a73e8;
+    .andet-felt.vis {
+      display: block;
     }
 
-    #tilfoejKnap:hover {
-      background: #d8e6fd;
+    .andet-felt label {
+      margin-top: 0;
     }
 
     #sendKnap {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 25px;
       background: #4285f4;
       color: white;
-      margin-top: 25px;
     }
 
     #sendKnap:hover {
@@ -186,11 +234,12 @@
 
     #besked {
       margin-top: 20px;
-      padding: 15px;
+      padding: 18px;
       border-radius: 10px;
       text-align: center;
       font-weight: bold;
       display: none;
+      line-height: 1.5;
     }
 
     #besked.success {
@@ -203,13 +252,6 @@
       display: block;
       background: #fce8e6;
       color: #c5221f;
-    }
-
-    .ikon {
-      width: 55px;
-      height: 55px;
-      margin: 0 auto 10px auto;
-      display: block;
     }
 
     @media (max-width: 600px) {
@@ -236,7 +278,6 @@
 <body>
 
   <div class="side">
-
     <div class="kort">
 
       <img
@@ -254,17 +295,17 @@
       <h1>Special Minds infoskærm</h1>
 
       <div class="beskrivelse">
-
         <p>
-          Vi vil gerne lave en touchskærm med info om, hvad der sker i huset.
+          Vi vil gerne lave en touchskærm med information om,
+          hvad der sker i huset.
         </p>
 
         <p>
-          Hvis der er noget, du synes ville være fedt at kunne se på skærmen,
-          så skriv det herunder. Det kunne fx. være frokostmenuen eller sociale aktiviteter.
+          Hjælp os med at finde ud af, hvad der ville være
+          rart og nyttigt at kunne se på skærmen.
         </p>
-
       </div>
+
 
       <form
         id="formular"
@@ -273,68 +314,235 @@
         target="googleSheetFrame"
       >
 
+        <!-- NAVN -->
         <label for="navn">
           Dit navn
         </label>
+
+        <div class="forklaring">
+          Dit navn bruges kun til at kunne se, hvem der har sendt
+          et svar. Du kan vælge at svare anonymt.
+        </div>
 
         <input
           type="text"
           id="navn"
           name="navn"
           placeholder="Skriv dit navn"
-          required
           autocomplete="name"
         >
 
-        <div id="forslagContainer">
 
-          <div class="forslag">
+        <!-- ANONYM -->
+        <div class="anonym-box">
+          <input
+            type="checkbox"
+            id="anonym"
+            name="anonym"
+            value="ja"
+          >
 
-            <div class="forslag-titel">
-              Forslag 1
-            </div>
+          <label for="anonym">
+            Jeg vil gerne være anonym
+          </label>
+        </div>
 
-            <textarea
-              name="forslag"
-              placeholder="Skriv dit forslag her..."
-              required
-            ></textarea>
 
-          </div>
+        <!-- ØNSKER -->
+        <div class="valg-overskrift">
+          Hvad vil du gerne kunne se på infoskærmen?
+        </div>
+
+        <div class="valg-forklaring">
+          Du må gerne vælge flere ting.
+        </div>
+
+
+        <div class="valg-liste">
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Dagens program"
+            >
+            <span>Dagens program</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Hvad sker der i dag?"
+            >
+            <span>Hvad sker der i dag?</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Frokostmenu"
+            >
+            <span>Frokostmenu</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Sociale aktiviteter"
+            >
+            <span>Sociale aktiviteter</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Fysiske aktiviteter"
+            >
+            <span>Fysiske aktiviteter</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Kreative aktiviteter"
+            >
+            <span>Kreative aktiviteter</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Spil og hygge"
+            >
+            <span>Spil og hygge</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Mulighed for ro/pause"
+            >
+            <span>Mulighed for ro/pause</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Ændringer i dagens program"
+            >
+            <span>Ændringer i dagens program</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Praktiske beskeder"
+            >
+            <span>Praktiske beskeder</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Hvem er på arbejde i dag?"
+            >
+            <span>Hvem er på arbejde i dag?</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Fødselsdage og mærkedage"
+            >
+            <span>Fødselsdage og mærkedage</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Vejret"
+            >
+            <span>Vejret</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Transport/bus"
+            >
+            <span>Transport/bus</span>
+          </label>
+
+          <label class="valg">
+            <input
+              type="checkbox"
+              id="andetCheckbox"
+              name="ønske"
+              value="Andet"
+            >
+            <span>Andet</span>
+          </label>
 
         </div>
 
-        <button
-          type="button"
-          id="tilfoejKnap"
-        >
-          + Lav endnu et forslag
-        </button>
 
+        <!-- ANDET -->
+        <div
+          id="andetFelt"
+          class="andet-felt"
+        >
+          <label for="andet">
+            Hvad kunne du ellers tænke dig?
+          </label>
+
+          <textarea
+            id="andet"
+            name="andet"
+            placeholder="Skriv dit forslag her..."
+          ></textarea>
+        </div>
+
+
+        <!-- SEND -->
         <button
           type="submit"
           id="sendKnap"
         >
-          Send forslag
+          Send mit svar
         </button>
 
       </form>
 
+
+      <!-- BESKED -->
       <div id="besked"></div>
 
     </div>
-
   </div>
 
+
+  <!-- Skjult iframe til Google Apps Script -->
   <iframe
     name="googleSheetFrame"
     id="googleSheetFrame"
     style="display:none;"
   ></iframe>
 
-  <!-- VERSION 5 -->
-  <script src="app.js?v=5"></script>
+
+  <script src="app.js?v=6"></script>
 
 </body>
 </html>
-```
