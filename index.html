@@ -292,17 +292,11 @@
         class="ikon"
       >
 
-      <h1>Special Minds infoskærm</h1>
+      <h1>Fritidsaktiviter</h1>
 
       <div class="beskrivelse">
         <p>
-          Vi vil gerne lave en touchskærm med information om,
-          hvad der sker i huset.
-        </p>
-
-        <p>
-          Hvis der er noget, du synes ville være fedt at kunne se på skærmen,
-          så skriv det herunder. Det kunne fx. være frokostmenuen eller sociale aktiviteter.
+          Hvad laver du i din fritid?
         </p>
       </div>
 
@@ -314,43 +308,9 @@
         target="googleSheetFrame"
       >
 
-        <!-- NAVN -->
-        <label for="navn">
-          Dit navn
-        </label>
-
-        <div class="forklaring">
-          Dit navn bruges kun til at kunne se, hvem der har sendt
-          et svar, hvis vi har spørgsmål til dit forslag. Du kan vælge at svare anonymt.
-        </div>
-
-        <input
-          type="text"
-          id="navn"
-          name="navn"
-          placeholder="Skriv dit navn"
-          autocomplete="name"
-        >
-
-
-        <!-- ANONYM -->
-        <div class="anonym-box">
-          <input
-            type="checkbox"
-            id="anonym"
-            name="anonym"
-            value="ja"
-          >
-
-          <label for="anonym">
-            Jeg vil gerne være anonym
-          </label>
-        </div>
-
-
         <!-- ØNSKER -->
         <div class="valg-overskrift">
-          Hvad vil du gerne kunne se på infoskærmen?
+          Hvad vil laver du i din fritid?
         </div>
 
         <div class="valg-forklaring">
@@ -364,83 +324,92 @@
             <input
               type="checkbox"
               name="ønske"
-              value="Frokostmenu"
+              value="Minecraft"
             >
-            <span>Frokostmenu</span>
+            <span>Minecraft</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Sociale aktiviteter"
+              value="Roblox"
             >
-            <span>Sociale aktiviteter</span>
+            <span>Roblox</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Fysiske aktiviteter"
+              value="Counter-Strike"
             >
-            <span>Fysiske aktiviteter</span>
+            <span>Counter-Strike</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Fællesundervisning"
+              value="Fortnite"
             >
-            <span>Fællesundervisning</span>
+            <span>Fortnite</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Friday Minds"
+              value="Brætspil"
             >
-            <span>Friday Minds</span>
+            <span>Brætspil</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Ændringer i dagens program"
+              value="Film/serier"
             >
-            <span>Ændringer i dagens program</span>
+            <span>Film/serier</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Praktiske beskeder"
+              value="Musik"
             >
-            <span>Praktiske beskeder</span>
+            <span>Musik</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Hvem er på arbejde i dag?"
+              value="Krea"
             >
-            <span>Hvem er på arbejde i dag?</span>
+            <span>Krea</span>
           </label>
 
           <label class="valg">
             <input
               type="checkbox"
               name="ønske"
-              value="Vejret"
+              value="Sport"
             >
-            <span>Vejret</span>
+            <span>Sport</span>
           </label>
 
+           <label class="valg">
+            <input
+              type="checkbox"
+              name="ønske"
+              value="Madlavning/bagning"
+            >
+            <span>Madlavning/bagning</span>
+          </label>
+          
           <label class="valg">
             <input
               type="checkbox"
@@ -455,20 +424,43 @@
 
 
         <!-- ANDET -->
-        <div
-          id="andetFelt"
-          class="andet-felt"
-        >
-          <label for="andet">
-            Hvad kunne du ellers tænke dig?
-          </label>
+<div id="andetFelt" class="andet-felt">
 
-          <textarea
-            id="andet"
-            name="andet"
-            placeholder="Skriv dit forslag her..."
-          ></textarea>
-        </div>
+  <label>
+    Laver du andre ting?
+  </label>
+
+  <p class="valg-forklaring">
+    Du kan skrive flere ting. Tryk på knappen for at få et ekstra felt.
+  </p>
+
+  <div id="andreFelter">
+    <textarea
+      name="andet"
+      placeholder="Skriv en anden fritidsaktivitet her:"
+    ></textarea>
+  </div>
+
+  <button
+    type="button"
+    id="tilfoejFelt"
+    style="
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border: 2px solid #4285f4;
+      border-radius: 10px;
+      background: white;
+      color: #3367d6;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    "
+  >
+    + Tilføj et felt
+  </button>
+
+</div>
 
 
         <!-- SEND -->
