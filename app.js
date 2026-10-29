@@ -14,14 +14,36 @@ const tilfoejFeltKnap = document.getElementById("tilfoejFelt");
 // TILFØJ FLERE FELTER UNDER ANDET
 // ------------------------------
 
-tilfoejFeltKnap.addEventListener("click", function () {
-  const nytFelt = document.createElement("textarea");
 
+tilfoejFeltKnap.addEventListener("click", function () {
+  const feltGruppe = document.createElement("div");
+  feltGruppe.style.marginTop = "12px";
+
+  const nytFelt = document.createElement("textarea");
   nytFelt.name = "andet";
   nytFelt.placeholder = "Skriv en anden fritidsaktivitet her:";
-  nytFelt.style.marginTop = "10px";
+  nytFelt.style.marginTop = "0";
+  nytFelt.style.display = "block";
 
-  andreFelter.appendChild(nytFelt);
+  const sletKnap = document.createElement("button");
+  sletKnap.type = "button";
+  sletKnap.textContent = "Slet felt";
+  sletKnap.style.marginTop = "6px";
+  sletKnap.style.padding = "8px 12px";
+  sletKnap.style.border = "1px solid #c5221f";
+  sletKnap.style.borderRadius = "8px";
+  sletKnap.style.background = "white";
+  sletKnap.style.color = "#c5221f";
+  sletKnap.style.cursor = "pointer";
+
+  sletKnap.addEventListener("click", function () {
+    feltGruppe.remove();
+  });
+
+  feltGruppe.appendChild(nytFelt);
+  feltGruppe.appendChild(sletKnap);
+  andreFelter.appendChild(feltGruppe);
+
   nytFelt.focus();
 });
 
