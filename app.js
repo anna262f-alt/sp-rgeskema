@@ -123,6 +123,14 @@ form.addEventListener("submit", function (event) {
     .map(felt => felt.value.trim())
     .filter(tekst => tekst !== "");
 
+  const samletTekst = andetTekster.join(" | ");
+
+// Fjern name fra de enkelte tekstfelter,
+// så de ikke sendes separat til Google Sheets.
+andreFelter.querySelectorAll("textarea").forEach(felt => {
+  felt.removeAttribute("name");
+});
+  
   // Fjern tidligere skjult samlet felt, hvis det findes
   const gammeltSamletFelt = form.querySelector(
     'input[name="andetSamlet"]'
@@ -133,7 +141,7 @@ form.addEventListener("submit", function (event) {
   const samletFelt = document.createElement("input");
   samletFelt.type = "hidden";
   samletFelt.name = "andetSamlet";
-  samletFelt.value = andetTekster.join(" | ");
+  samletFelt.value = samletTekst;
   form.appendChild(samletFelt);
 
   // Send til Google Sheets
