@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fritidsdiagram</title>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+<style>
+body {
+  margin: 0;
+  padding: 25px;
+  font-family: Arial, sans-serif;
+  background: #323D4F;
+  color: white;
+}
+
+h1 {
+  text-align: center;
+}
+
+#diagram {
+  width: 100%;
+  height: 650px;
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(85%, 420px);
+  max-height: 70vh;
+  overflow-y: auto;
+  background: white;
+  color: #323D4F;
+  padding: 22px;
+  border-radius: 14px;
+  box-shadow: 0 5px 25px #0008;
+  z-index: 10;
+}
+
+#popup h2 {
+  margin-top: 0;
+}
+
+#luk {
+  float: right;
+  cursor: pointer;
+  font-size: 24px;
+  border: none;
+  background: none;
+}
+
+.person {
+  padding: 8px;
+  margin: 5px 0;
+  background: #edf1f5;
+  border-radius: 6px;
+}
+
+.tilbage {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 20px;
+  background: #00A09A;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Hvad laver folk i deres fritid?</h1>
+
+<div id="diagram">Henter diagram ...</div>
+
+<div id="popup">
+  <button id="luk" onclick="lukPopup()">×</button>
+  <h2 id="popupTitel"></h2>
+  <div id="popupIndhold"></div>
+</div>
+
+<a class="tilbage" href="index.html">← Tilbage til forsiden</a>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbylNU5Ccc5CCL_Jnjhya2iC_wmOLIcqxxiVXjoR8dlKoEUEz_AhIUuqwlA5-2zyPrLM/exec";
+
+let alleData = [];
+
+google.charts.load("current", {
+  packages: ["corechart"]
+});
+
+google.charts.setOnLoadCallback(hentData);
+
+function hentData() {
+  const callback = "modtagData";
+
+  window[callback] = function(data) {
+    alleData = data.aktiviteter.concat(
+      data.forslag.map(f => ({
+        navn: f.navn,
+        antal: f.personer.length,
+        personer: f.personer
+      }))
+    );
+
+    tegnDiagram();
+  };
+
+  const script = document.createElement("script");
+  script.src = API + "?callback=" + callback;
+  script.onerror = function() {
+    document.getElementById("diagram").innerText =
+      "Diagrammet kunne ikke hentes. Prøv at genindlæse siden.";
+  };
+  document.body.appendChild(script);
+}
+
+function tegnDiagram() {
+  const data = new google.visualization.DataTable();
+
+  data.addColumn("string", "Aktivitet");
+  data.addColumn("number", "Antal svar");
+
+  alleData.forEach(item => {
+    data.addRow([item.navn, item.antal]);
+  });
+
+  const diagram = new google.visualization.BarChart(
+    document.getElementById("diagram")
+  );
+
+  google.visualization.events.addListener(
+    diagram,
+    "select",
+    function() {
+      const valg = diagram.getSelection();
+
+      if (valg.length > 0) {
+        visPopup(alleData[valg[0].row]);
+      }
+    }
+  );
+
+  diagram.draw(data, {
+    title: "Antal svar pr. aktivitet",
+    legend: { position: "none" },
+    colors: ["#00A09A"],
+    backgroundColor: "white",
+    chartArea: {
+      left: 150,
+      right: 30,
+      top: 50,
+      bottom: 50,
+      width: "75%",
+      height: "80%"
+    },
+    hAxis: {
+      minValue: 0,
+      format: "0",
+      title: "Antal svar"
+    },
+    vAxis: {
+      textStyle: { fontSize: 12 }
+    },
+    height: 630
+  });
+}
+
+function visPopup(item) {
+  document.getElementById("popupTitel").innerText =
+    item.navn + " (" + item.antal + ")";
+
+  const indhold = document.getElementById("popupIndhold");
+  indhold.innerHTML = "";
+
+  if (!item.personer || item.personer.length === 0) {
+    indhold.innerText = "Ingen navne at vise.";
+  } else {
+    item.personer.forEach(navn => {
+      const felt = document.createElement("div");
+      felt.className = "person";
+      felt.textContent = navn;
+      indhold.appendChild(felt);
+    });
+  }
+
+  document.getElementById("popup").style.display = "block";
+}
+
+function lukPopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+window.addEventListener("resize", () => {
+  if (alleData.length) tegnDiagram();
+});
+
+// Hent nye tal hvert minut
+setInterval(hentData, 60000);
+</script>
+
+</body>
+</html>
