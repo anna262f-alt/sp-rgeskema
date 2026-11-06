@@ -358,15 +358,13 @@
 
 
         <div class="valg-liste">     
+
 <label class="valg">
-  <input
-    type="checkbox"
-    id="gaming"
-  >
+  <input type="checkbox" id="gaming">
   <span>Gaming</span>
 </label>
 
-<div id="gaming-spil" style="display: none; margin-left: 25px;">
+<div id="gaming-spil" style="display:none; margin-left:25px;">
 
   <label class="valg">
     <input type="checkbox" name="ønske" value="Minecraft">
@@ -389,12 +387,7 @@
   </label>
 
   <label for="andreSpil">Andre spil:</label>
-  <input
-    type="text"
-    id="andreSpil"
-    name="andreSpil"
-    placeholder="Skriv andre spil her:"
-  >
+  <input type="text" id="andreSpil" placeholder="Skriv andre spil her">
 
 </div>
 
@@ -425,41 +418,32 @@
             <span>Musik</span>
           </label>
 
-        <label class="valg">
-  <input
-    type="checkbox"
-    id="sport"
-  >
+    
+<label class="valg">
+  <input type="checkbox" id="sportCheckbox">
   <span>Sport</span>
 </label>
 
-<div id="sport" style="display: none; margin-left: 25px;">
+<div id="sportFelt" style="display:none; margin-left:25px;">
 
   <label class="valg">
     <input type="checkbox" name="ønske" value="Fodbold">
     <span>Fodbold</span>
   </label>
 
-  <label for="andet">Andet:</label>
-  <input
-    type="text"
-    id="andet"
-    name="andet"
-    placeholder="Andet:"
-  >
+  <label for="sportAndet">Andre sportsgrene:</label>
+  <input type="text" id="sportAndet" placeholder="Skriv her">
 
 </div>
 
 
-                 <label class="valg">
-  <input
-    type="checkbox"
-    id="krea"
-  >
+               
+<label class="valg">
+  <input type="checkbox" id="kreaCheckbox">
   <span>Krea</span>
 </label>
 
-<div id="krea" style="display: none; margin-left: 25px;">
+<div id="kreaFelt" style="display:none; margin-left:25px;">
 
   <label class="valg">
     <input type="checkbox" name="ønske" value="Tegne">
@@ -471,13 +455,8 @@
     <span>Hækle</span>
   </label>
 
-  <label for="andet">Andet:</label>
-  <input
-    type="text"
-    id="andet"
-    name="andet"
-    placeholder="Skriv andre krea-aktiviteter her:"
-  >
+  <label for="kreaAndet">Andre kreative aktiviteter:</label>
+  <input type="text" id="kreaAndet" placeholder="Skriv her">
 
 </div>
 
@@ -614,16 +593,14 @@
     </div>
   </div>
 
+<!-- Skjult iframe til Google Sheets -->
+<iframe
+  name="googleSheetFrame"
+  id="googleSheetFrame"
+  style="display:none;"
+></iframe>
 
-  <!-- Skjult iframe til Google Apps Script -->
-  <iframe
-    name="googleSheetFrame"
-    id="googleSheetFrame"
-    style="display:none;"
-  ></iframe>
-
-
-  <script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 
 </body>
 </html>
