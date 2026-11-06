@@ -313,11 +313,12 @@
           Hvad laver du i din fritid?
         </div>
 
-        <div class="navn-felt">
+       
+<div class="navn-felt">
   <label for="navn">Hvad hedder du?</label>
   <p class="valg-forklaring">
-  Hvis du skriver dit navn, kan andre gå ind og se hvem der fx. har svaret "Minecraft".
-</p>
+    Hvis du skriver dit navn, kan andre gå ind og se hvad du laver i din fritid.
+  </p>
   <input
     type="text"
     id="navn"
@@ -337,6 +338,24 @@
     Jeg vil gerne være anonym
   </label>
 </div>
+
+<script>
+  const navnFelt = document.getElementById("navn");
+  const anonymFelt = document.getElementById("anonym");
+
+  anonymFelt.addEventListener("change", function () {
+    if (anonymFelt.checked) {
+      navnFelt.value = "";
+    }
+  });
+
+  navnFelt.addEventListener("input", function () {
+    if (navnFelt.value.trim() !== "") {
+      anonymFelt.checked = false;
+    }
+  });
+</script>
+
         
         <div class="valg-forklaring">
           Du må gerne vælge flere ting.
