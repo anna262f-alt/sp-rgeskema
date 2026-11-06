@@ -1,6 +1,4 @@
-
 document.addEventListener("DOMContentLoaded", function () {
-
   const form = document.getElementById("formular");
   const sendKnap = document.getElementById("sendKnap");
   const besked = document.getElementById("besked");
@@ -9,10 +7,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const navnFelt = document.getElementById("navn");
   const anonymFelt = document.getElementById("anonym");
 
-  // --------------------------------
-  // ANONYMITET
-  // --------------------------------
+  const gamingCheckbox = document.getElementById("gaming");
+  const gamingFelt = document.getElementById("gaming-spil");
 
+  const sportCheckbox = document.getElementById("sportCheckbox");
+  const sportFelt = document.getElementById("sportFelt");
+
+  const kreaCheckbox = document.getElementById("kreaCheckbox");
+  const kreaFelt = document.getElementById("kreaFelt");
+
+  const andetCheckbox = document.getElementById("andetCheckbox");
+  const andetFelt = document.getElementById("andetFelt");
+  const andreFelter = document.getElementById("andreFelter");
+  const tilfoejFeltKnap = document.getElementById("tilfoejFelt");
+
+  // Anonymitet og navn
   anonymFelt.addEventListener("change", function () {
     if (anonymFelt.checked) {
       navnFelt.value = "";
@@ -25,40 +34,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // --------------------------------
-  // VIS OG SKJUL UNDERKATEGORIER
-  // --------------------------------
-
-  function opretUnderkategori(checkboxId, feltId) {
-    const checkbox = document.getElementById(checkboxId);
-    const felt = document.getElementById(feltId);
-
+  // Vis og skjul underkategorier
+  function opsaetUnderkategori(checkbox, felt) {
     checkbox.addEventListener("change", function () {
       felt.style.display = checkbox.checked ? "block" : "none";
 
       if (!checkbox.checked) {
-        felt.querySelectorAll('input[type="checkbox"]')
-          .forEach(input => input.checked = false);
+        felt.querySelectorAll('input[type="checkbox"]').forEach(function (input) {
+          input.checked = false;
+        });
 
-        felt.querySelectorAll('input[type="text"]')
-          .forEach(input => input.value = "");
+        felt.querySelectorAll('input[type="text"]').forEach(function (input) {
+          input.value = "";
+        });
       }
     });
   }
 
-  opretUnderkategori("gaming", "gaming-spil");
-  opretUnderkategori("sportCheckbox", "sportFelt");
-  opretUnderkategori("kreaCheckbox", "kreaFelt");
+  opsaetUnderkategori(gamingCheckbox, gamingFelt);
+  opsaetUnderkategori(sportCheckbox, sportFelt);
+  opsaetUnderkategori(kreaCheckbox, kreaFelt);
 
-  // --------------------------------
-  // ANDET
-  // --------------------------------
-
-  const andetCheckbox = document.getElementById("andetCheckbox");
-  const andetFelt = document.getElementById("andetFelt");
-  const andreFelter = document.getElementById("andreFelter");
-  const tilfoejFeltKnap = document.getElementById("tilfoejFelt");
-
+  // Opret et ekstra tekstfelt under Andet
   function opretTekstfelt() {
     const gruppe = document.createElement("div");
     gruppe.style.marginTop = "12px";
@@ -90,25 +87,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   tilfoejFeltKnap.addEventListener("click", opretTekstfelt);
 
+  // Vis og skjul Andet-felterne
   andetCheckbox.addEventListener("change", function () {
     andetFelt.classList.toggle("vis", andetCheckbox.checked);
 
     if (!andetCheckbox.checked) {
       andreFelter.innerHTML = "";
-      opretFørsteTekstfelt();
+
+      const tekstfelt = document.createElement("textarea");
+      tekstfelt.placeholder = "Skriv en anden fritidsaktivitet her:";
+      andreFelter.appendChild(tekstfelt);
     }
   });
 
-  function opretFørsteTekstfelt() {
-    const felt = document.createElement("textarea");
-    felt.placeholder = "Skriv en anden fritidsaktivitet her:";
-    andreFelter.appendChild(felt);
+  // Hent tekst fra et tekstfelt
+  function hentTekst(id) {
+    const felt = document.getElementById(id);
+    return felt ? felt.value.trim() : "";
   }
 
-  // --------------------------------
-  // SEND FORMULAR
-  // --------------------------------
-
+  // Send formularen
   let afventerSvar = false;
 
   form.addEventListener("submit", function (event) {
@@ -119,63 +117,80 @@ document.addEventListener("DOMContentLoaded", function () {
     besked.className = "";
     besked.textContent = "";
 
-    // Kontrollér at mindst én aktivitet er valgt
-    const valgteOnsker = form.querySelectorAll(
-      'input[name="ønske"]:checked'
-    );
-
-    if (valgteOnsker.length === 0) {
-      besked.className = "error";
-      besked.textContent =
-        "Vælg mindst én ting, du gerne vil kunne se på infoskærmen.";
-      return;
-    }
-
-    // Kontrollér Andet
-    if (andetCheckbox.checked) {
-      const tekster = Array.from(
-        andreFelter.querySelectorAll("textarea")
-      ).map(felt => felt.value.trim());
-
-      if (!tekster.some(tekst => tekst !== "")) {
-        besked.className = "error";
-        besked.textContent =
-          "Skriv gerne, hvad du ellers kunne tænke dig.";
-        return;
-      }
-    }
-
-    // Saml alle aktiviteter
-    const valgteTekster = Array.from(valgteOnsker)
-      .map(input => input.value);
-
-    const ekstraFelter = [
-      "andreSpil",
-      "sportAndet",
-      "kreaAndet"
-    ];
-
-    ekstraFelter.forEach(id => {
-      const felt = document.getElementById(id);
-
-      if (felt && felt.value.trim() !== "") {
-        valgteTekster.push(felt.value.trim());
-      }
+    // Hent alle afkrydsede aktiviteter
+    const valgteOnsker = Array.from(
+      form.querySelectorAll('input[name="ønske"]:checked')
+    ).map(function (input) {
+      return input.value;
     });
 
-    // Saml tekstfelterne under Andet
+    // Saml fritekst med den rigtige kategori
+    const kategoriforslag = [];
+
+    const andreSpil = hentTekst("andreSpil");
+    const andreSportsgrene = hentTekst("sportAndet");
+    const andreKreative = hentTekst("kreaAndet");
+
+    if (andreSpil) {
+      kategoriforslag.push({
+        kategori: "Gaming",
+        tekst: andreSpil
+      });
+    }
+
+    if (andreSportsgrene) {
+      kategoriforslag.push({
+        kategori: "Sport",
+        tekst: andreSportsgrene
+      });
+    }
+
+    if (andreKreative) {
+      kategoriforslag.push({
+        kategori: "Krea",
+        tekst: andreKreative
+      });
+    }
+
+    // Hent alle tekstfelter under Andet
     const andetTekster = Array.from(
       andreFelter.querySelectorAll("textarea")
     )
-      .map(felt => felt.value.trim())
-      .filter(tekst => tekst !== "");
+      .map(function (felt) {
+        return felt.value.trim();
+      })
+      .filter(Boolean);
+
+    andetTekster.forEach(function (tekst) {
+      kategoriforslag.push({
+        kategori: "Andet",
+        tekst: tekst
+      });
+    });
+
+    // Kontroller, at der er mindst ét svar
+    if (valgteOnsker.length === 0 && kategoriforslag.length === 0) {
+      besked.className = "error";
+      besked.textContent =
+        "Vælg eller skriv mindst én fritidsaktivitet.";
+      return;
+    }
+
+    // Hvis Andet er valgt, skal der være skrevet noget
+    if (andetCheckbox.checked && andetTekster.length === 0) {
+      besked.className = "error";
+      besked.textContent =
+        "Skriv gerne, hvad du ellers kunne tænke dig.";
+      andreFelter.querySelector("textarea").focus();
+      return;
+    }
 
     // Fjern gamle skjulte felter
-    form.querySelectorAll(".samlet-data").forEach(
-      felt => felt.remove()
-    );
+    form.querySelectorAll(".samlet-data").forEach(function (felt) {
+      felt.remove();
+    });
 
-    // Samlet liste med valgte aktiviteter
+    // Opret skjulte felter til Google Sheets
     function tilfoejSkjultFelt(navn, vaerdi) {
       const felt = document.createElement("input");
       felt.type = "hidden";
@@ -187,51 +202,76 @@ document.addEventListener("DOMContentLoaded", function () {
 
     tilfoejSkjultFelt(
       "ønskerSamlet",
-      valgteTekster.join(" | ")
+      valgteOnsker.join("|")
     );
 
     tilfoejSkjultFelt(
-      "andetSamlet",
-      andetTekster.join(" | ")
+      "kategoriforslagSamlet",
+      JSON.stringify(kategoriforslag)
     );
 
-    // Deaktiver knappen
+    // Fjern name fra de oprindelige Andet-tekstfelter,
+    // så de ikke bliver sendt dobbelt.
+    andreFelter.querySelectorAll("textarea").forEach(function (felt) {
+      felt.removeAttribute("name");
+    });
+
     afventerSvar = true;
     sendKnap.disabled = true;
     sendKnap.textContent = "Sender...";
-
     besked.className = "success";
     besked.textContent = "Sender dit svar...";
 
-    // Vent på at Google Sheets svarer i iframe
-    iframe.addEventListener("load", function vedSvar() {
-      iframe.removeEventListener("load", vedSvar);
+    // Vent på at svaret er sendt til iframe
+    let afsluttet = false;
 
-      besked.className = "success";
-      besked.textContent = "Tak! Dit svar er sendt.";
+    function afslutAfsendelse() {
+      if (afsluttet) return;
+      afsluttet = true;
 
+      afventerSvar = false;
       sendKnap.disabled = false;
       sendKnap.textContent = "Send mit svar";
-      afventerSvar = false;
+
+      besked.className = "success";
+      besked.textContent =
+        "Formularen er sendt. Tak!";
 
       form.reset();
 
+      gamingFelt.style.display = "none";
+      sportFelt.style.display = "none";
+      kreaFelt.style.display = "none";
       andetFelt.classList.remove("vis");
 
-      document.getElementById("gaming-spil").style.display = "none";
-      document.getElementById("sportFelt").style.display = "none";
-      document.getElementById("kreaFelt").style.display = "none";
-
       andreFelter.innerHTML = "";
-      opretFørsteTekstfelt();
 
-      form.querySelectorAll(".samlet-data").forEach(
-        felt => felt.remove()
-      );
+      const nytFelt = document.createElement("textarea");
+      nytFelt.placeholder = "Skriv en anden fritidsaktivitet her:";
+      andreFelter.appendChild(nytFelt);
 
-    }, { once: true });
+      form.querySelectorAll(".samlet-data").forEach(function (felt) {
+        felt.remove();
+      });
+    }
+
+    iframe.addEventListener("load", function vedSvar() {
+      iframe.removeEventListener("load", vedSvar);
+      afslutAfsendelse();
+    });
 
     form.submit();
-  });
 
+    // Sikkerhedsnet, hvis iframe ikke melder tilbage
+    setTimeout(function () {
+      if (!afsluttet) {
+        afventerSvar = false;
+        sendKnap.disabled = false;
+        sendKnap.textContent = "Send mit svar";
+        besked.className = "error";
+        besked.textContent =
+          "Vi kunne ikke bekræfte afsendelsen. Tjek Google Sheets, før du sender igen.";
+      }
+    }, 15000);
+  });
 });
