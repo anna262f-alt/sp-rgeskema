@@ -105,7 +105,44 @@ document.addEventListener("DOMContentLoaded", function () {
     const felt = document.getElementById(id);
     return felt ? felt.value.trim() : "";
   }
+  
+// Ekstra tekstfelter til Gaming, Sport og Krea
+  
+document.querySelectorAll(".tilfoej-ekstra").forEach(function (knap) {
+  knap.addEventListener("click", function () {
+    const feltId = knap.dataset.felt;
+    const feltGruppe = document.getElementById(feltId);
+    const feltliste = feltGruppe.querySelector(".feltliste");
 
+    const gruppe = document.createElement("div");
+    gruppe.style.marginTop = "12px";
+
+    const tekstfelt = document.createElement("textarea");
+
+    if (feltId === "gamingEkstra") {
+      tekstfelt.placeholder = "Skriv et andet spil her";
+    } else if (feltId === "sportEkstra") {
+      tekstfelt.placeholder = "Skriv en anden sportsgren her";
+    } else {
+      tekstfelt.placeholder = "Skriv en anden kreativ aktivitet her";
+    }
+
+    const sletKnap = document.createElement("button");
+    sletKnap.type = "button";
+    sletKnap.textContent = "Slet felt";
+    sletKnap.style.marginTop = "6px";
+
+    sletKnap.addEventListener("click", function () {
+      gruppe.remove();
+    });
+
+    gruppe.appendChild(tekstfelt);
+    gruppe.appendChild(sletKnap);
+    feltliste.appendChild(gruppe);
+
+    tekstfelt.focus();
+  });
+});
   // Send formularen
   let afventerSvar = false;
 
@@ -127,30 +164,24 @@ document.addEventListener("DOMContentLoaded", function () {
     // Saml fritekst med den rigtige kategori
     const kategoriforslag = [];
 
-    const andreSpil = hentTekst("andreSpil");
-    const andreSportsgrene = hentTekst("sportAndet");
-    const andreKreative = hentTekst("kreaAndet");
+    function hentEkstraFelter(id, kategori) {
+  const gruppe = document.getElementById(id);
 
-    if (andreSpil) {
+  gruppe.querySelectorAll("textarea").forEach(function (felt) {
+    const tekst = felt.value.trim();
+
+    if (tekst) {
       kategoriforslag.push({
-        kategori: "Gaming",
-        tekst: andreSpil
+        kategori: kategori,
+        tekst: tekst
       });
     }
+  });
+}
 
-    if (andreSportsgrene) {
-      kategoriforslag.push({
-        kategori: "Sport",
-        tekst: andreSportsgrene
-      });
-    }
-
-    if (andreKreative) {
-      kategoriforslag.push({
-        kategori: "Krea",
-        tekst: andreKreative
-      });
-    }
+hentEkstraFelter("gamingEkstra", "Gaming");
+hentEkstraFelter("sportEkstra", "Sport");
+hentEkstraFelter("kreaEkstra", "Krea");
 
     // Hent alle tekstfelter under Andet
     const andetTekster = Array.from(
